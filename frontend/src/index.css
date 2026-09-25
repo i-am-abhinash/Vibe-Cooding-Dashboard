@@ -1,96 +1,93 @@
 @import "tailwindcss";
 
 @theme {
-  --color-flux-bg: var(--flux-bg);
-  --color-flux-surface: var(--flux-surface);
-  --color-flux-surface-2: var(--flux-surface-2);
-  --color-flux-accent: var(--flux-accent);
-  --color-flux-accent-warm: var(--flux-accent-warm);
-  --color-flux-text: var(--flux-text);
-  --color-flux-muted: var(--flux-muted);
-  --color-flux-success: var(--flux-success);
-  --color-flux-warning: var(--flux-warning);
-  --color-flux-danger: var(--flux-danger);
-  --color-flux-highlight: var(--flux-highlight);
+  --color-cinematic-bg: var(--bg-primary);
+  --color-cinematic-bg-2: var(--bg-secondary);
+  --color-cinematic-surface: var(--surface);
+  --color-cinematic-surface-2: var(--surface-elevated);
+  
+  --color-cinematic-text: var(--text-primary);
+  --color-cinematic-text-2: var(--text-secondary);
+  --color-cinematic-muted: var(--text-muted);
+  
+  --color-cinematic-blue: var(--accent-blue);
+  --color-cinematic-indigo: var(--accent-indigo);
+  --color-cinematic-violet: var(--accent-violet);
+  --color-cinematic-cyan: var(--accent-cyan);
+  --color-cinematic-pink: var(--accent-pink);
+  
+  --color-cinematic-success: var(--success);
+  --color-cinematic-warning: var(--warning);
+  --color-cinematic-danger: var(--danger);
 }
 
 @layer base {
   :root {
-    --flux-bg: #0D0D0B;
-    --flux-surface: #151512;
-    --flux-surface-2: #1C1C17;
-    --flux-accent: #C8FF3D;
-    --flux-accent-warm: #FFB84A;
-    --flux-text: #F4F0E6;
-    --flux-muted: #8D8B82;
+    --bg-primary: #080A10;
+    --bg-secondary: #0D1018;
+    --surface: #121621;
+    --surface-elevated: #181D29;
     
-    --flux-success: #C8FF3D;
-    --flux-warning: #FFB84A;
-    --flux-danger: #FF5C5C;
-    --flux-highlight: #F4F0E6;
-
-    --depth-1: 10px;
-    --depth-2: 30px;
-    --depth-3: 60px;
+    --text-primary: #F3F5FA;
+    --text-secondary: #A5ADBD;
+    --text-muted: #697386;
+    
+    --accent-blue: #5B8CFF;
+    --accent-indigo: #7B6DFF;
+    --accent-violet: #A78BFA;
+    
+    --accent-cyan: #62D9FF;
+    --accent-pink: #D6A4FF;
+    
+    --success: #49D89A;
+    --warning: #F4C66A;
+    --danger: #FF6F7D;
   }
 
   body {
-    background-color: var(--flux-bg);
-    color: var(--flux-text);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     overflow-x: hidden;
     margin: 0;
     -webkit-font-smoothing: antialiased;
-    perspective: 1200px;
+    perspective: 1500px;
   }
 
-  /* Flux Background System */
-  .flux-grid {
+  /* Cinematic Atmospheric Background */
+  .cinematic-atmosphere {
     position: fixed;
-    inset: -50%;
-    background-image: 
-      linear-gradient(to right, rgba(200, 255, 61, 0.02) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(200, 255, 61, 0.02) 1px, transparent 1px);
-    background-size: 80px 80px;
-    transform: rotateX(60deg) translateY(-100px) translateZ(-200px);
-    transform-style: preserve-3d;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(91, 140, 255, 0.05), transparent 60%),
+                radial-gradient(circle at 80% 80%, rgba(167, 139, 250, 0.03), transparent 50%);
     pointer-events: none;
-    z-index: -2;
-    mask-image: radial-gradient(circle at center, black 10%, transparent 60%);
-  }
-
-  .flux-ambient {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    width: 100vw;
-    height: 100vh;
-    background: radial-gradient(circle at center, rgba(200, 255, 61, 0.03), transparent 70%);
-    transform: translate(-50%, -50%);
     z-index: -3;
-    pointer-events: none;
   }
 }
 
 @layer utilities {
-  .flux-panel {
-    background: var(--flux-surface);
-    border: 1px solid rgba(244, 240, 230, 0.05);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+  /* Material 01 — Dark Glass */
+  .material-glass {
+    background: rgba(18, 22, 33, 0.4);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(243, 245, 250, 0.03);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+  }
+  
+  /* Material 02 — Smoked Acrylic */
+  .material-acrylic {
+    background: rgba(24, 29, 41, 0.6);
     backdrop-filter: blur(12px);
+    border: 1px solid rgba(91, 140, 255, 0.08);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.02);
   }
   
-  .flux-node {
-    background: var(--flux-surface-2);
-    border: 1px solid rgba(200, 255, 61, 0.2);
-    box-shadow: 0 0 20px rgba(200, 255, 61, 0.05);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-  
-  .flux-node:hover {
-    border-color: var(--flux-accent);
-    box-shadow: 0 0 30px rgba(200, 255, 61, 0.15);
-    transform: translateZ(20px);
+  /* Material 03 — Illuminated Crystal */
+  .material-crystal {
+    background: linear-gradient(135deg, rgba(91, 140, 255, 0.1), rgba(123, 109, 255, 0.05));
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(91, 140, 255, 0.2);
+    box-shadow: 0 0 30px rgba(91, 140, 255, 0.15), inset 0 0 20px rgba(91, 140, 255, 0.05);
   }
   
   .preserve-3d {

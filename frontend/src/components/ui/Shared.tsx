@@ -1,41 +1,26 @@
-import { motion } from 'framer-motion';
 
-export function FluxSurface({ children, className = '', style = {} }: any) {
+export function CinematicSurface({ children, className = '', material = 'glass', style = {} }: any) {
+  const matClass = material === 'glass' ? 'material-glass' : material === 'acrylic' ? 'material-acrylic' : 'material-crystal';
   return (
-    <div className={`flux-panel rounded-xl p-6 preserve-3d ${className}`} style={style}>
+    <div className={`${matClass} rounded-2xl p-8 preserve-3d ${className}`} style={style}>
       {children}
     </div>
   );
 }
 
-export function SpatialNode({ children, onClick, active = false, className = '' }: any) {
-  return (
-    <motion.button
-      onClick={onClick}
-      whileHover={{ scale: 1.05, z: 20 }}
-      whileTap={{ scale: 0.95, z: 0 }}
-      className={`relative rounded-full flex items-center justify-center transition-colors preserve-3d
-        ${active ? 'bg-flux-accent text-flux-bg shadow-[0_0_20px_rgba(200,255,61,0.4)]' : 'flux-node text-flux-text'}
-        ${className}`}
-    >
-      {children}
-    </motion.button>
-  );
-}
-
 export function StatusIndicator({ status, type = 'dot' }: { status: string, type?: 'dot' | 'label' }) {
-  let color = 'bg-flux-muted';
-  let textColor = 'text-flux-muted';
+  let color = 'bg-cinematic-muted';
+  let textColor = 'text-cinematic-muted';
   
   if (['verified', 'completed', 'merged', 'working', 'satisfied', 'active'].includes(status.toLowerCase())) {
-    color = 'bg-flux-accent shadow-[0_0_10px_rgba(200,255,61,0.5)]';
-    textColor = 'text-flux-accent';
+    color = 'bg-cinematic-success shadow-[0_0_12px_rgba(73,216,154,0.4)]';
+    textColor = 'text-cinematic-success';
   } else if (['pending', 'review', 'partial', 'modification_required', 'pending_verification'].includes(status.toLowerCase())) {
-    color = 'bg-flux-accent-warm shadow-[0_0_10px_rgba(255,184,74,0.5)]';
-    textColor = 'text-flux-accent-warm';
+    color = 'bg-cinematic-warning shadow-[0_0_12px_rgba(244,198,106,0.4)]';
+    textColor = 'text-cinematic-warning';
   } else if (['not_working', 'overdue', 'not_satisfied', 'missing', 'changes_requested'].includes(status.toLowerCase())) {
-    color = 'bg-flux-danger shadow-[0_0_10px_rgba(255,92,92,0.5)]';
-    textColor = 'text-flux-danger';
+    color = 'bg-cinematic-danger shadow-[0_0_12px_rgba(255,111,125,0.4)]';
+    textColor = 'text-cinematic-danger';
   }
 
   if (type === 'dot') {
@@ -43,7 +28,7 @@ export function StatusIndicator({ status, type = 'dot' }: { status: string, type
   }
 
   return (
-    <span className={`inline-flex items-center text-[10px] font-bold tracking-widest uppercase ${textColor}`}>
+    <span className={`inline-flex items-center text-[10px] font-bold tracking-[0.1em] uppercase ${textColor}`}>
       <span className={`inline-block w-1.5 h-1.5 rounded-full mr-2 ${color}`} />
       {status.replace('_', ' ')}
     </span>

@@ -1,20 +1,29 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { AlertCircle } from 'lucide-react';
 import api from '../api';
 import AppShell from '../components/layout/AppShell';
-import { FluxSurface } from '../components/ui/Shared';
+import { CinematicSurface } from '../components/ui/Shared';
 
 export default function TeamDashboard() {
   const [data, setData] = useState<any>(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const navigate = useNavigate();
 
   useEffect(() => {
     api.get('/team-dashboard').then(res => setData(res.data)).catch(console.error);
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({
+        x: (e.clientX / window.innerWidth - 0.5) * 20,
+        y: (e.clientY / window.innerHeight - 0.5) * 20,
+      });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  if (!data) return <AppShell><div className="animate-pulse h-64 flux-panel rounded-3xl" /></AppShell>;
+  if (!data) return <AppShell><div className="animate-pulse h-64 material-glass rounded-3xl" /></AppShell>;
 
   const { members, cycle, pendingReviews } = data;
   let totalProjects = members.length * 4;
@@ -28,95 +37,118 @@ export default function TeamDashboard() {
 
   return (
     <AppShell cycle={cycle}>
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 preserve-3d">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-12 preserve-3d">
         
-        {/* CENTERPIECE: TEAM CORE */}
-        <div className="xl:col-span-8 relative h-[600px] flex items-center justify-center preserve-3d">
-          {/* Central 3D Object Approximation */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none preserve-3d">
+        {/* CENTERPIECE: LAYERED 3D STRUCTURE */}
+        <div className="xl:col-span-7 relative h-[700px] flex items-center justify-center preserve-3d">
+          
+          <motion.div 
+            className="absolute inset-0 flex items-center justify-center pointer-events-none preserve-3d"
+            animate={{ rotateX: mousePosition.y * -0.5, rotateY: mousePosition.x * 0.5 }}
+            transition={{ type: "spring", stiffness: 50, damping: 20 }}
+            style={{ transformStyle: 'preserve-3d' }}
+          >
+            {/* Outer Glow */}
+            <div className="absolute w-[600px] h-[600px] bg-cinematic-blue/5 rounded-full blur-[100px] -z-10" />
+            
+            {/* Layer 1: Outer Wireframe Ring */}
             <motion.div 
-              animate={{ rotateX: [60, 60], rotateZ: [0, 360] }}
-              transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-              className="w-[500px] h-[500px] rounded-full border border-flux-accent/10 absolute preserve-3d"
+              animate={{ rotateZ: 360 }} transition={{ duration: 120, repeat: Infinity, ease: "linear" }}
+              className="absolute w-[500px] h-[500px] rounded-full border border-cinematic-blue/10 preserve-3d"
               style={{ transformStyle: 'preserve-3d' }}
             >
-              {/* Outer Orbit Nodes (Members) */}
+              {/* Member Nodes in Orbit */}
               {members.map((m: any, i: number) => {
                 const angle = (i / members.length) * 360;
                 return (
-                  <div key={m.id} className="absolute top-1/2 left-1/2 w-4 h-4 -ml-2 -mt-2 preserve-3d" style={{ transform: `rotateZ(${angle}deg) translateX(250px) rotateZ(-${angle}deg) rotateX(-60deg)` }}>
+                  <div key={m.id} className="absolute top-1/2 left-1/2 w-4 h-4 -ml-2 -mt-2 preserve-3d" style={{ transform: `rotateZ(${angle}deg) translateX(250px) rotateZ(-${angle}deg)` }}>
                     <motion.div 
-                      whileHover={{ scale: 1.5 }}
+                      whileHover={{ scale: 1.2, z: 20 }}
                       onClick={() => navigate(`/team/member/${m.id}`)}
-                      className={`w-6 h-6 rounded-full flex items-center justify-center cursor-pointer pointer-events-auto border transition-colors shadow-[0_0_15px_currentColor]
-                        ${m.attendance.filter((a:any)=>a.status==='absent').length > 2 ? 'bg-flux-danger/20 border-flux-danger text-flux-danger' : 'bg-flux-accent/20 border-flux-accent text-flux-accent'}
-                      `}
+                      className="w-10 h-10 rounded-full material-crystal flex items-center justify-center cursor-pointer pointer-events-auto shadow-[0_0_20px_rgba(91,140,255,0.2)] transition-colors hover:bg-cinematic-blue/20"
                       title={m.name}
                     >
-                      <span className="text-[8px] font-bold">{m.name.substring(0,1)}</span>
+                      <span className="text-[10px] font-light text-cinematic-text tracking-widest">{m.name.substring(0,2).toUpperCase()}</span>
                     </motion.div>
                   </div>
                 )
               })}
             </motion.div>
-            
+
+            {/* Layer 2: Inner Progress Ring */}
             <motion.div 
-              animate={{ rotateX: [60, 60], rotateZ: [360, 0] }}
-              transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-              className="w-[350px] h-[350px] rounded-full border border-flux-accent-warm/20 absolute preserve-3d"
+              animate={{ rotateZ: -360 }} transition={{ duration: 80, repeat: Infinity, ease: "linear" }}
+              className="absolute w-[350px] h-[350px] rounded-full border border-cinematic-violet/10 border-t-cinematic-violet/40 preserve-3d"
             />
             
-            <div className="w-[200px] h-[200px] rounded-full bg-flux-bg/50 backdrop-blur-md border border-flux-accent/30 absolute flex flex-col items-center justify-center shadow-[0_0_50px_rgba(200,255,61,0.1)]">
-              <span className="text-4xl font-light text-flux-accent">{progressPct}%</span>
-              <span className="text-[10px] uppercase tracking-widest text-flux-muted font-bold mt-2">Team Flow</span>
+            {/* Core Surface */}
+            <div className="absolute w-[220px] h-[220px] rounded-full material-glass border-cinematic-blue/30 flex flex-col items-center justify-center shadow-[0_0_60px_rgba(91,140,255,0.15)] preserve-3d transform translate-z-10">
+              <span className="text-5xl font-extralight text-cinematic-text mb-1 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">{progressPct}%</span>
+              <span className="text-[9px] uppercase tracking-[0.2em] text-cinematic-blue font-bold">Team Output</span>
             </div>
-          </div>
+          </motion.div>
+
         </div>
 
-        {/* RIGHT METRICS & ATTENTION */}
-        <div className="xl:col-span-4 flex flex-col gap-6 preserve-3d">
-          <FluxSurface className="transform hover:translate-z-10 transition-transform">
-            <h3 className="text-xs uppercase tracking-widest text-flux-muted font-bold mb-4">Milestones</h3>
-            <div className="flex justify-between items-end mb-6">
-              <div>
-                <div className="text-3xl font-light text-flux-text mb-1">{completedProjects} <span className="text-xl text-flux-muted">/ {totalProjects}</span></div>
-                <div className="text-[10px] uppercase tracking-widest text-flux-muted">Projects Verified</div>
-              </div>
+        {/* METRICS & SURFACES */}
+        <div className="xl:col-span-5 flex flex-col justify-center gap-8 preserve-3d">
+          
+          <CinematicSurface className="transform hover:translate-z-10 transition-transform duration-500 relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-r from-cinematic-blue/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <h3 className="text-[10px] uppercase tracking-[0.2em] text-cinematic-text-2 font-light mb-6">Milestones Achieved</h3>
+            <div className="flex items-baseline gap-4 mb-4">
+              <span className="text-5xl font-light text-cinematic-text">{completedProjects}</span>
+              <span className="text-sm tracking-widest text-cinematic-muted">/ {totalProjects} PROJECTS</span>
             </div>
-            
-            <div className="h-2 bg-flux-surface-2 rounded-full overflow-hidden">
+            <div className="h-[2px] bg-cinematic-surface-2 w-full mt-4">
               <motion.div 
-                initial={{ width: 0 }} animate={{ width: `${progressPct}%` }} transition={{ duration: 1, delay: 0.5 }}
-                className="h-full bg-flux-accent shadow-[0_0_10px_var(--color-flux-accent)]" 
+                initial={{ width: 0 }} animate={{ width: `${progressPct}%` }} transition={{ duration: 1.5, ease: "easeOut" }}
+                className="h-full bg-cinematic-blue shadow-[0_0_10px_var(--accent-blue)]" 
               />
             </div>
-          </FluxSurface>
+          </CinematicSurface>
 
-          <FluxSurface className="flex-1 transform hover:translate-z-10 transition-transform border-t-2 border-t-flux-danger/50 bg-flux-surface/80 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-flux-danger/10 blur-[50px] rounded-full -z-10" />
-            <h3 className="text-xs uppercase tracking-widest text-flux-danger font-bold mb-6 flex items-center">
-              <AlertCircle size={14} className="mr-2" /> Attention Zone
+          <CinematicSurface material="acrylic" className="transform hover:translate-z-10 transition-transform duration-500 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-cinematic-warning/10 blur-[50px] rounded-full -z-10" />
+            <h3 className="text-[10px] uppercase tracking-[0.2em] text-cinematic-warning font-bold mb-6 flex items-center">
+              <span className="w-1.5 h-1.5 rounded-full bg-cinematic-warning shadow-[0_0_10px_currentColor] mr-3 animate-pulse" />
+              Attention Required
             </h3>
             
             <div className="space-y-4">
               {pendingReviews > 0 ? (
-                <div className="p-3 bg-flux-surface-2 rounded-lg border border-flux-warning/20">
-                  <div className="text-flux-warning font-bold mb-1">{pendingReviews} Pending Reviews</div>
-                  <div className="text-xs text-flux-muted">Projects or modifications require your verification.</div>
+                <div className="group cursor-pointer">
+                  <div className="flex justify-between items-center border-b border-cinematic-text/5 pb-3">
+                    <span className="text-sm text-cinematic-text font-light">{pendingReviews} Reviews Pending</span>
+                    <span className="text-[10px] uppercase tracking-widest text-cinematic-warning opacity-0 group-hover:opacity-100 transition-opacity">Action →</span>
+                  </div>
                 </div>
               ) : (
-                <div className="text-xs text-flux-muted">No pending reviews.</div>
+                <div className="text-xs font-light text-cinematic-muted">No pending reviews.</div>
               )}
 
-              {/* Find members with high absence as a risk example */}
               {members.filter((m:any) => m.attendance.filter((a:any)=>a.status==='absent').length > 2).map((m:any) => (
-                <div key={m.id} className="p-3 bg-flux-surface-2 rounded-lg border border-flux-danger/20 cursor-pointer hover:border-flux-danger/50" onClick={() => navigate(`/team/member/${m.id}`)}>
-                  <div className="text-flux-danger font-bold mb-1 flex items-center"><span className="w-1.5 h-1.5 rounded-full bg-flux-danger mr-2 shadow-[0_0_5px_currentColor]" /> {m.name}</div>
-                  <div className="text-xs text-flux-muted">Attendance below threshold.</div>
+                <div key={m.id} className="group cursor-pointer" onClick={() => navigate(`/team/member/${m.id}`)}>
+                   <div className="flex justify-between items-center border-b border-cinematic-text/5 pb-3">
+                    <span className="text-sm text-cinematic-text font-light">{m.name}</span>
+                    <span className="text-[10px] uppercase tracking-widest text-cinematic-danger">Attendance Risk</span>
+                  </div>
                 </div>
               ))}
             </div>
-          </FluxSurface>
+          </CinematicSurface>
+
+          <div className="flex gap-8 px-4 mt-4">
+             <div>
+               <div className="text-2xl font-light text-cinematic-text mb-1">{members.length}</div>
+               <div className="text-[9px] uppercase tracking-[0.1em] text-cinematic-muted">Active Operatives</div>
+             </div>
+             <div>
+               <div className="text-2xl font-light text-cinematic-text mb-1">76%</div>
+               <div className="text-[9px] uppercase tracking-[0.1em] text-cinematic-muted">Group Contribution</div>
+             </div>
+          </div>
+          
         </div>
       </div>
     </AppShell>

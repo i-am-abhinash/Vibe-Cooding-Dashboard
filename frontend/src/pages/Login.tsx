@@ -31,50 +31,48 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-flux-bg text-flux-text flex items-center justify-center overflow-hidden preserve-3d">
-      <div className="flux-grid" />
-      <div className="flux-ambient" />
+    <div className="min-h-screen bg-cinematic-bg text-cinematic-text flex items-center justify-center overflow-hidden preserve-3d relative">
+      <div className="cinematic-atmosphere" />
+      <div className="absolute w-[800px] h-[800px] rounded-full border border-cinematic-blue/5 scale-[1.5] -z-10" />
+      <div className="absolute w-[600px] h-[600px] rounded-full border border-cinematic-blue/10 scale-[1.2] -z-10" />
 
       <motion.div 
-        initial={{ opacity: 0, z: -100, rotateX: 10 }}
-        animate={{ opacity: 1, z: 0, rotateX: 0 }}
-        transition={{ duration: 0.8, ease: [0.175, 0.885, 0.32, 1.275] }}
-        className="relative z-10 w-full max-w-sm p-10 flux-panel rounded-2xl border-t border-t-flux-accent/30 shadow-[0_30px_60px_rgba(0,0,0,0.6)]"
+        initial={{ opacity: 0, z: -150, scale: 0.95 }}
+        animate={{ opacity: 1, z: 0, scale: 1 }}
+        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+        className="relative z-10 w-full max-w-sm p-12 material-glass rounded-2xl"
       >
-        <div className="text-center mb-10">
-          <div className="w-16 h-16 mx-auto mb-6 rounded-full border border-flux-accent/30 flex items-center justify-center relative shadow-[0_0_30px_rgba(200,255,61,0.15)]">
-            <div className="w-8 h-8 rounded-full bg-flux-accent/20 blur-md absolute" />
-            <div className="w-10 h-10 rounded-full border border-flux-accent/50 flex items-center justify-center bg-flux-surface z-10">
-              <span className="text-flux-accent font-bold text-xs tracking-tighter">VC</span>
-            </div>
+        <div className="text-center mb-12">
+          <div className="w-16 h-16 mx-auto mb-8 rounded-full material-crystal flex items-center justify-center shadow-[0_0_30px_rgba(91,140,255,0.2)]">
+            <span className="text-cinematic-blue font-light tracking-widest text-xs">VC</span>
           </div>
-          <h1 className="text-2xl font-light tracking-[0.2em] text-flux-text mb-2">VIBE FLUX</h1>
-          <p className="text-[9px] text-flux-muted tracking-widest uppercase">System Authentication</p>
+          <h1 className="text-2xl font-light tracking-[0.3em] text-cinematic-text mb-2">VIBE<span className="text-cinematic-blue">CODING</span></h1>
+          <p className="text-[9px] text-cinematic-muted tracking-[0.2em] uppercase">Operations Terminal</p>
         </div>
 
         {error && (
-          <div className="mb-6 p-3 rounded bg-flux-danger/10 border border-flux-danger/30 text-flux-danger text-xs text-center font-bold tracking-widest uppercase">
+          <div className="mb-8 p-3 rounded bg-cinematic-danger/10 border border-cinematic-danger/20 text-cinematic-danger text-[10px] text-center font-bold tracking-[0.1em] uppercase">
             {error}
           </div>
         )}
 
         <form onSubmit={handleLogin} className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-[10px] uppercase tracking-widest text-flux-muted font-bold">Identity Vector</label>
+          <div className="space-y-3">
+            <label className="text-[9px] uppercase tracking-[0.2em] text-cinematic-muted font-bold ml-1">Identity Vector</label>
             <input 
               type="email" 
-              className="w-full bg-flux-surface-2 border border-flux-text/10 focus:border-flux-accent rounded px-4 py-3 outline-none transition-colors placeholder:text-flux-text/20 text-sm"
+              className="w-full bg-cinematic-surface-2/50 border border-cinematic-text/10 focus:border-cinematic-blue/50 rounded px-4 py-3 outline-none transition-colors placeholder:text-cinematic-text/20 text-sm font-light"
               placeholder="lead@demo.com"
               value={email} 
               onChange={e => setEmail(e.target.value)} 
               required 
             />
           </div>
-          <div className="space-y-2">
-            <label className="text-[10px] uppercase tracking-widest text-flux-muted font-bold">Security Key</label>
+          <div className="space-y-3">
+            <label className="text-[9px] uppercase tracking-[0.2em] text-cinematic-muted font-bold ml-1">Security Key</label>
             <input 
               type="password" 
-              className="w-full bg-flux-surface-2 border border-flux-text/10 focus:border-flux-accent rounded px-4 py-3 outline-none transition-colors placeholder:text-flux-text/20 text-sm"
+              className="w-full bg-cinematic-surface-2/50 border border-cinematic-text/10 focus:border-cinematic-blue/50 rounded px-4 py-3 outline-none transition-colors placeholder:text-cinematic-text/20 text-sm font-light"
               placeholder="••••••••"
               value={password} 
               onChange={e => setPassword(e.target.value)} 
@@ -83,9 +81,9 @@ export default function Login() {
           </div>
           <button 
             disabled={loading}
-            className="w-full mt-8 bg-flux-accent hover:bg-flux-accent/90 text-flux-bg font-bold tracking-widest uppercase text-xs py-4 rounded transition-colors shadow-[0_0_20px_rgba(200,255,61,0.2)] hover:shadow-[0_0_30px_rgba(200,255,61,0.4)]"
+            className="w-full mt-10 bg-cinematic-blue/10 hover:bg-cinematic-blue/20 border border-cinematic-blue/30 text-cinematic-blue font-bold tracking-[0.2em] uppercase text-[10px] py-4 rounded transition-all shadow-[0_0_20px_rgba(91,140,255,0.1)] hover:shadow-[0_0_30px_rgba(91,140,255,0.2)]"
           >
-            {loading ? 'Initiating...' : 'Establish Uplink'}
+            {loading ? 'Authenticating...' : 'Establish Uplink'}
           </button>
         </form>
       </motion.div>
