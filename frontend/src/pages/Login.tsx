@@ -25,42 +25,45 @@ export default function Login() {
         navigate('/member');
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Login failed');
+      setError(err.response?.data?.error || 'Authentication rejected');
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-background text-text-primary flex items-center justify-center overflow-hidden">
-      <div className="bg-grid"></div>
-      <div className="bg-glow"></div>
+    <div className="min-h-screen bg-flux-bg text-flux-text flex items-center justify-center overflow-hidden preserve-3d">
+      <div className="flux-grid" />
+      <div className="flux-ambient" />
 
       <motion.div 
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="relative z-10 w-full max-w-md p-10 glass-panel rounded-3xl"
-        style={{ transformStyle: 'preserve-3d', perspective: '1000px' }}
+        initial={{ opacity: 0, z: -100, rotateX: 10 }}
+        animate={{ opacity: 1, z: 0, rotateX: 0 }}
+        transition={{ duration: 0.8, ease: [0.175, 0.885, 0.32, 1.275] }}
+        className="relative z-10 w-full max-w-sm p-10 flux-panel rounded-2xl border-t border-t-flux-accent/30 shadow-[0_30px_60px_rgba(0,0,0,0.6)]"
       >
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-bold tracking-wider bg-clip-text text-transparent bg-gradient-to-br from-primary to-secondary mb-2">
-            VIBE CODING
-          </h1>
-          <p className="text-text-muted text-sm tracking-widest uppercase">Team Dashboard</p>
+          <div className="w-16 h-16 mx-auto mb-6 rounded-full border border-flux-accent/30 flex items-center justify-center relative shadow-[0_0_30px_rgba(200,255,61,0.15)]">
+            <div className="w-8 h-8 rounded-full bg-flux-accent/20 blur-md absolute" />
+            <div className="w-10 h-10 rounded-full border border-flux-accent/50 flex items-center justify-center bg-flux-surface z-10">
+              <span className="text-flux-accent font-bold text-xs tracking-tighter">VC</span>
+            </div>
+          </div>
+          <h1 className="text-2xl font-light tracking-[0.2em] text-flux-text mb-2">VIBE FLUX</h1>
+          <p className="text-[9px] text-flux-muted tracking-widest uppercase">System Authentication</p>
         </div>
 
         {error && (
-          <div className="mb-6 p-3 rounded-xl bg-danger/10 border border-danger/30 text-danger text-sm text-center">
+          <div className="mb-6 p-3 rounded bg-flux-danger/10 border border-flux-danger/30 text-flux-danger text-xs text-center font-bold tracking-widest uppercase">
             {error}
           </div>
         )}
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">
-            <label className="text-xs uppercase tracking-widest text-text-muted font-semibold ml-1">Email</label>
+            <label className="text-[10px] uppercase tracking-widest text-flux-muted font-bold">Identity Vector</label>
             <input 
               type="email" 
-              className="w-full bg-surface-elevated/50 border border-border focus:border-primary focus:ring-1 focus:ring-primary rounded-xl p-3 outline-none transition-all placeholder:text-border"
+              className="w-full bg-flux-surface-2 border border-flux-text/10 focus:border-flux-accent rounded px-4 py-3 outline-none transition-colors placeholder:text-flux-text/20 text-sm"
               placeholder="lead@demo.com"
               value={email} 
               onChange={e => setEmail(e.target.value)} 
@@ -68,10 +71,10 @@ export default function Login() {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs uppercase tracking-widest text-text-muted font-semibold ml-1">Password</label>
+            <label className="text-[10px] uppercase tracking-widest text-flux-muted font-bold">Security Key</label>
             <input 
               type="password" 
-              className="w-full bg-surface-elevated/50 border border-border focus:border-primary focus:ring-1 focus:ring-primary rounded-xl p-3 outline-none transition-all placeholder:text-border"
+              className="w-full bg-flux-surface-2 border border-flux-text/10 focus:border-flux-accent rounded px-4 py-3 outline-none transition-colors placeholder:text-flux-text/20 text-sm"
               placeholder="••••••••"
               value={password} 
               onChange={e => setPassword(e.target.value)} 
@@ -80,14 +83,9 @@ export default function Login() {
           </div>
           <button 
             disabled={loading}
-            className="w-full relative group overflow-hidden rounded-xl p-[1px] mt-4"
+            className="w-full mt-8 bg-flux-accent hover:bg-flux-accent/90 text-flux-bg font-bold tracking-widest uppercase text-xs py-4 rounded transition-colors shadow-[0_0_20px_rgba(200,255,61,0.2)] hover:shadow-[0_0_30px_rgba(200,255,61,0.4)]"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary opacity-70 group-hover:opacity-100 transition-opacity" />
-            <div className="relative bg-surface px-4 py-3 rounded-xl flex items-center justify-center transition-all group-hover:bg-opacity-0">
-              <span className="font-semibold tracking-wide group-hover:text-white transition-colors">
-                {loading ? 'AUTHENTICATING...' : 'ACCESS WORKSPACE'}
-              </span>
-            </div>
+            {loading ? 'Initiating...' : 'Establish Uplink'}
           </button>
         </form>
       </motion.div>

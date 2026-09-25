@@ -1,107 +1,99 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: var(--background);
-  --color-surface: var(--surface);
-  --color-surface-elevated: var(--surface-elevated);
-  --color-glass: var(--glass);
-  --color-glass-border: var(--glass-border);
-  --color-border: var(--border);
-  --color-primary: var(--primary);
-  --color-primary-glow: var(--primary-glow);
-  --color-secondary: var(--secondary);
-  --color-success: var(--success);
-  --color-success-glow: var(--success-glow);
-  --color-warning: var(--warning);
-  --color-danger: var(--danger);
-  --color-danger-glow: var(--danger-glow);
-  --color-text-primary: var(--text-primary);
-  --color-text-muted: var(--text-muted);
+  --color-flux-bg: var(--flux-bg);
+  --color-flux-surface: var(--flux-surface);
+  --color-flux-surface-2: var(--flux-surface-2);
+  --color-flux-accent: var(--flux-accent);
+  --color-flux-accent-warm: var(--flux-accent-warm);
+  --color-flux-text: var(--flux-text);
+  --color-flux-muted: var(--flux-muted);
+  --color-flux-success: var(--flux-success);
+  --color-flux-warning: var(--flux-warning);
+  --color-flux-danger: var(--flux-danger);
+  --color-flux-highlight: var(--flux-highlight);
 }
 
 @layer base {
   :root {
-    --background: #05050A;
-    --surface: #0A0A12;
-    --surface-elevated: #11111A;
-    --glass: rgba(15, 15, 25, 0.4);
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --border: #1F1F2E;
+    --flux-bg: #0D0D0B;
+    --flux-surface: #151512;
+    --flux-surface-2: #1C1C17;
+    --flux-accent: #C8FF3D;
+    --flux-accent-warm: #FFB84A;
+    --flux-text: #F4F0E6;
+    --flux-muted: #8D8B82;
     
-    --primary: #4F46E5;
-    --primary-glow: rgba(79, 70, 229, 0.3);
-    --secondary: #8B5CF6;
-    
-    --success: #10B981;
-    --success-glow: rgba(16, 185, 129, 0.2);
-    --warning: #F59E0B;
-    --danger: #EF4444;
-    --danger-glow: rgba(239, 68, 68, 0.2);
-    
-    --text-primary: #F8FAFC;
-    --text-muted: #94A3B8;
+    --flux-success: #C8FF3D;
+    --flux-warning: #FFB84A;
+    --flux-danger: #FF5C5C;
+    --flux-highlight: #F4F0E6;
+
+    --depth-1: 10px;
+    --depth-2: 30px;
+    --depth-3: 60px;
   }
 
   body {
-    background-color: var(--background);
-    color: var(--text-primary);
+    background-color: var(--flux-bg);
+    color: var(--flux-text);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     overflow-x: hidden;
     margin: 0;
     -webkit-font-smoothing: antialiased;
+    perspective: 1200px;
   }
 
-  /* Global background effects */
-  .bg-grid {
-    background-size: 40px 40px;
-    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                      linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-    mask-image: radial-gradient(circle at center, black, transparent 80%);
+  /* Flux Background System */
+  .flux-grid {
     position: fixed;
-    inset: 0;
-    z-index: -2;
+    inset: -50%;
+    background-image: 
+      linear-gradient(to right, rgba(200, 255, 61, 0.02) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(200, 255, 61, 0.02) 1px, transparent 1px);
+    background-size: 80px 80px;
+    transform: rotateX(60deg) translateY(-100px) translateZ(-200px);
+    transform-style: preserve-3d;
     pointer-events: none;
+    z-index: -2;
+    mask-image: radial-gradient(circle at center, black 10%, transparent 60%);
   }
-  
-  .bg-glow {
+
+  .flux-ambient {
     position: fixed;
     top: 50%;
     left: 50%;
-    width: 60vw;
-    height: 60vh;
-    background: radial-gradient(circle at center, var(--primary-glow), transparent 70%);
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(circle at center, rgba(200, 255, 61, 0.03), transparent 70%);
     transform: translate(-50%, -50%);
     z-index: -3;
     pointer-events: none;
-    filter: blur(100px);
-    opacity: 0.5;
   }
 }
 
 @layer utilities {
-  .glass-panel {
-    background: var(--glass);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--glass-border);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  .flux-panel {
+    background: var(--flux-surface);
+    border: 1px solid rgba(244, 240, 230, 0.05);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+    backdrop-filter: blur(12px);
   }
   
-  .glass-button {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    backdrop-filter: blur(8px);
-    transition: all 0.2s ease;
+  .flux-node {
+    background: var(--flux-surface-2);
+    border: 1px solid rgba(200, 255, 61, 0.2);
+    box-shadow: 0 0 20px rgba(200, 255, 61, 0.05);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
   
-  .glass-button:hover {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.2);
-    box-shadow: 0 0 15px var(--primary-glow);
+  .flux-node:hover {
+    border-color: var(--flux-accent);
+    box-shadow: 0 0 30px rgba(200, 255, 61, 0.15);
+    transform: translateZ(20px);
   }
   
-  .depth-layer {
+  .preserve-3d {
     transform-style: preserve-3d;
-    perspective: 1000px;
   }
 }
