@@ -1,96 +1,100 @@
 @import "tailwindcss";
 
 @theme {
-  --color-cinematic-bg: var(--bg-primary);
-  --color-cinematic-bg-2: var(--bg-secondary);
-  --color-cinematic-surface: var(--surface);
-  --color-cinematic-surface-2: var(--surface-elevated);
+  --color-brand-bg-1: #05060A;
+  --color-brand-bg-2: #0A0C12;
   
-  --color-cinematic-text: var(--text-primary);
-  --color-cinematic-text-2: var(--text-secondary);
-  --color-cinematic-muted: var(--text-muted);
+  --color-brand-blue-1: #4DA3FF;
+  --color-brand-blue-2: #5BC8FF;
+  --color-brand-violet-1: #8B5CF6;
+  --color-brand-violet-2: #A78BFA;
   
-  --color-cinematic-blue: var(--accent-blue);
-  --color-cinematic-indigo: var(--accent-indigo);
-  --color-cinematic-violet: var(--accent-violet);
-  --color-cinematic-cyan: var(--accent-cyan);
-  --color-cinematic-pink: var(--accent-pink);
+  --color-brand-gold: #F5A623;
+  --color-brand-green: #2ED47A;
+  --color-brand-red: #EF4444;
+  --color-brand-orange: #F59E0B;
   
-  --color-cinematic-success: var(--success);
-  --color-cinematic-warning: var(--warning);
-  --color-cinematic-danger: var(--danger);
+  --color-brand-text: #FFFFFF;
+  --color-brand-text-muted: #8B93A7;
 }
 
 @layer base {
   :root {
-    --bg-primary: #080A10;
-    --bg-secondary: #0D1018;
-    --surface: #121621;
-    --surface-elevated: #181D29;
-    
-    --text-primary: #F3F5FA;
-    --text-secondary: #A5ADBD;
-    --text-muted: #697386;
-    
-    --accent-blue: #5B8CFF;
-    --accent-indigo: #7B6DFF;
-    --accent-violet: #A78BFA;
-    
-    --accent-cyan: #62D9FF;
-    --accent-pink: #D6A4FF;
-    
-    --success: #49D89A;
-    --warning: #F4C66A;
-    --danger: #FF6F7D;
+    --brand-bg-1: #05060A;
+    --brand-bg-2: #0A0C12;
+    --brand-blue: #4DA3FF;
+    --brand-violet: #8B5CF6;
+    --brand-gold: #F5A623;
+    --brand-green: #2ED47A;
+    --brand-red: #EF4444;
+    --brand-text-muted: #8B93A7;
   }
 
   body {
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
+    background-color: var(--brand-bg-1);
+    color: #FFFFFF;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     overflow-x: hidden;
     margin: 0;
     -webkit-font-smoothing: antialiased;
-    perspective: 1500px;
   }
 
-  /* Cinematic Atmospheric Background */
-  .cinematic-atmosphere {
+  /* Terrain Background */
+  .terrain-bg {
     position: fixed;
-    inset: 0;
-    background: radial-gradient(circle at 50% 0%, rgba(91, 140, 255, 0.05), transparent 60%),
-                radial-gradient(circle at 80% 80%, rgba(167, 139, 250, 0.03), transparent 50%);
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    height: 40vh;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none"><path fill="%230A0C12" fill-opacity="1" d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path><path fill="%2305060A" fill-opacity="0.8" d="M0,288L80,266.7C160,245,320,203,480,192C640,181,800,203,960,213.3C1120,224,1280,224,1360,224L1440,224L1440,320L1360,320C1280,320,1120,320,960,320C800,320,640,320,480,320C320,320,160,320,80,320L0,320Z"></path></svg>');
+    background-size: cover;
+    background-position: bottom;
+    z-index: -2;
     pointer-events: none;
+  }
+  
+  .terrain-glow {
+    position: fixed;
+    bottom: -10vh;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80vw;
+    height: 40vh;
+    background: radial-gradient(ellipse at bottom, rgba(245, 166, 35, 0.15), transparent 70%);
     z-index: -3;
+    pointer-events: none;
   }
 }
 
 @layer utilities {
-  /* Material 01 — Dark Glass */
-  .material-glass {
-    background: rgba(18, 22, 33, 0.4);
+  .glass-card {
+    background: rgba(20, 24, 35, 0.55);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(243, 245, 250, 0.03);
-    box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
   }
   
-  /* Material 02 — Smoked Acrylic */
-  .material-acrylic {
-    background: rgba(24, 29, 41, 0.6);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(91, 140, 255, 0.08);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.02);
+  .glass-card-danger {
+    background: rgba(239, 68, 68, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(239, 68, 68, 0.15);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
   }
   
-  /* Material 03 — Illuminated Crystal */
-  .material-crystal {
-    background: linear-gradient(135deg, rgba(91, 140, 255, 0.1), rgba(123, 109, 255, 0.05));
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(91, 140, 255, 0.2);
-    box-shadow: 0 0 30px rgba(91, 140, 255, 0.15), inset 0 0 20px rgba(91, 140, 255, 0.05);
+  .glow-blue {
+    box-shadow: 0 0 15px rgba(77, 163, 255, 0.5);
   }
   
-  .preserve-3d {
-    transform-style: preserve-3d;
+  .glow-violet {
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+  }
+  
+  .text-gradient {
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(to right, var(--brand-blue), var(--brand-violet));
   }
 }
