@@ -254,7 +254,7 @@ export default function TeamDashboard() {
                 { title: 'Rahul', sub: 'Project modification overdue', icon: <CircleUserRound size={16}/>, bg: 'bg-brand-orange/20 text-brand-orange', badge: 'Medium', bColor: 'bg-brand-orange/20 text-brand-orange border border-brand-orange/30' },
                 { title: 'Group Project', sub: '2 pending PR reviews', icon: <FileCheck size={16}/>, bg: 'bg-brand-blue/20 text-brand-blue', badge: 'Low', bColor: 'bg-brand-blue/20 text-brand-blue border border-brand-blue/30' },
               ].map((item, i) => (
-                <div key={i} className="flex items-center justify-between p-3 rounded-[16px] bg-white/5 border border-white/5 hover:bg-white/10 cursor-pointer">
+                <div key={i} className="flex items-center justify-between p-3 rounded-[16px] bg-black/20 border border-white/5 shadow-[inset_0_2px_10px_rgba(0,0,0,0.3)] hover:bg-white/5 cursor-pointer">
                   <div className="flex items-center gap-4">
                     <div className={`w-10 h-10 rounded-[12px] flex items-center justify-center ${item.bg}`}>
                       {item.icon}

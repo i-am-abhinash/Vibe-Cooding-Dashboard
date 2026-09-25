@@ -56,7 +56,7 @@ export default function AppShell({ children }: AppShellProps) {
 
         {/* Exact Floating Sidebar Pill - PHYSICAL GLASS REBUILD */}
         <aside 
-          className="absolute left-[13px] top-[12px] bottom-[23px] w-[114px] rounded-[34px] flex flex-col items-center py-8 z-[100] transition-transform duration-100 ease-out"
+          className="absolute left-[13px] top-[12px] bottom-[23px] w-[114px] rounded-[34px] flex flex-col items-center py-8 z-[100]"
           style={{ transform: `translate(${mousePos.x * 2}px, ${mousePos.y * 2}px)` }}
         >
           {/* LAYER 1 & 2: Glass Body, Blur, and Refraction */}
