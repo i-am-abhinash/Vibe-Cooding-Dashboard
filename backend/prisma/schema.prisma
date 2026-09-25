@@ -1,0 +1,223 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Team {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  users         User[]
+  monthlyCycles MonthlyCycle[]
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         String   // "team_lead", "co_lead", "member"
+  status       String   @default("active")
+  createdAt    DateTime @default(now())
+
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id])
+
+  projects           Project[]
+  groupContributions GroupContribution[]
+  attendance         AttendanceCache[]
+  dailyReports       DailyReport[]
+  presentations      Presentation[]
+  growthSnapshots    GrowthSnapshot[]
+}
+
+model MonthlyCycle {
+  id                  String   @id @default(uuid())
+  month               Int
+  year                Int
+  individualStartDate DateTime
+  individualEndDate   DateTime
+  groupStartDate      DateTime
+  groupEndDate        DateTime
+  status              String   @default("active") // "active", "closed"
+
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id])
+
+  projects        Project[]
+  growthSnapshots GrowthSnapshot[]
+}
+
+model Project {
+  id              String    @id @default(uuid())
+  type            String    // "individual", "group"
+  name            String?
+  domain          String?
+  expectedOutcome String?
+  description     String?
+  ideaStatus      String    @default("not_submitted") // not_submitted, submitted, approved, changes_requested
+  ideaReviewedBy  String?
+  ideaReviewedAt  DateTime?
+  status          String    @default("not_started") // not_started, idea_submitted, idea_approved, in_progress, submitted, pending_verification, modification_required, resubmitted, verified, completed
+  deadline        DateTime?
+  submittedAt     DateTime?
+  completedAt     DateTime?
+  githubUrl       String?
+  reportUrl       String?
+  createdAt       DateTime  @default(now())
+
+  memberId String
+  member   User   @relation(fields: [memberId], references: [id])
+
+  cycleId String
+  cycle   MonthlyCycle @relation(fields: [cycleId], references: [id])
+
+  reviews           ProjectReview[]
+  modifications     Modification[]
+  groupContributions GroupContribution[]
+  dailyReports      DailyReport[]
+  presentations     Presentation[]
+  requirements      Requirement[]
+  functionalityReviews FunctionalityReview[]
+}
+
+model ProjectReview {
+  id         String   @id @default(uuid())
+  reviewType String   // "idea", "verification", "modification"
+  status     String
+  comments   String?
+  reviewedAt DateTime @default(now())
+
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id])
+  reviewerId String
+}
+
+model GroupContribution {
+  id          String   @id @default(uuid())
+  task        String
+  description String?
+  githubUrl   String?
+  branch      String?
+  status      String   @default("not_assigned") // not_assigned, assigned, in_progress, contribution_submitted, pr_created, under_review, modification_required, resubmitted, verified, completed
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id])
+
+  memberId String
+  member   User   @relation(fields: [memberId], references: [id])
+
+  pullRequests PullRequest[]
+}
+
+model PullRequest {
+  id        String    @id @default(uuid())
+  prUrl     String
+  prNumber  Int?
+  status    String    @default("open") // open, in_review, changes_requested, merged, closed
+  createdAt DateTime  @default(now())
+  mergedAt  DateTime?
+
+  contributionId String
+  contribution   GroupContribution @relation(fields: [contributionId], references: [id])
+}
+
+model Requirement {
+  id               String   @id @default(uuid())
+  description      String
+  status           String   @default("not_reviewed") // satisfied, partially_satisfied, not_satisfied, not_reviewed
+  evaluationSource String   @default("manual") // manual, ai
+  reviewComment    String?
+  reviewedBy       String?
+  reviewedAt       DateTime?
+
+  groupProjectId String
+  project        Project @relation(fields: [groupProjectId], references: [id])
+}
+
+model FunctionalityReview {
+  id         String   @id @default(uuid())
+  status     String   // working, partially_working, not_working
+  notes      String?
+  reviewedBy String?
+  reviewedAt DateTime?
+
+  groupProjectId String
+  project        Project @relation(fields: [groupProjectId], references: [id])
+}
+
+model Modification {
+  id          String    @id @default(uuid())
+  requestedBy String
+  description String
+  requestedAt DateTime  @default(now())
+  deadline    DateTime?
+  status      String    @default("pending") // pending, completed, overdue
+  completedAt DateTime?
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id])
+}
+
+model AttendanceCache {
+  id             String   @id @default(uuid())
+  date           DateTime
+  status         String   // present, absent
+  sourceSystemId String?
+  syncedAt       DateTime @default(now())
+
+  memberId String
+  member   User   @relation(fields: [memberId], references: [id])
+}
+
+model DailyReport {
+  id            String   @id @default(uuid())
+  date          DateTime
+  workCompleted String
+  blockers      String?
+  nextAction    String?
+  submittedAt   DateTime @default(now())
+
+  memberId String
+  member   User   @relation(fields: [memberId], references: [id])
+
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
+}
+
+model Presentation {
+  id            String    @id @default(uuid())
+  scheduledDate DateTime
+  completedDate DateTime?
+  status        String    @default("scheduled") // scheduled, done, missed
+  notes         String?
+
+  memberId String
+  member   User   @relation(fields: [memberId], references: [id])
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id])
+}
+
+model GrowthSnapshot {
+  id                 String   @id @default(uuid())
+  projectsCompleted  Int
+  projectsOnTime     Int
+  groupContribution  Int
+  attendancePct      Float
+  presentationsCount Int
+  lateTasks          Int
+  modificationsCount Int
+  generatedAt        DateTime @default(now())
+
+  memberId String
+  member   User   @relation(fields: [memberId], references: [id])
+
+  cycleId String
+  cycle   MonthlyCycle @relation(fields: [cycleId], references: [id])
+}
