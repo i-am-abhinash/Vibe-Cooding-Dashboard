@@ -67,7 +67,7 @@ export default function TeamDashboard() {
           <div className="flex-1 relative w-full min-h-0 flex items-center justify-center mb-6 pointer-events-none">
             {/* 3D Scene */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-[clamp(380px,45vw,600px)] aspect-square pointer-events-auto">
+              <div className="w-[clamp(430px,40vw,600px)] aspect-square pointer-events-auto">
                 <TeamScene progress={progressPct} />
               </div>
             </div>
@@ -75,13 +75,13 @@ export default function TeamDashboard() {
             {/* === FOUR FLOATING PANELS AROUND CENTER === */}
             
             {/* 1. Team Members Panel */}
-            <div className="absolute top-[8%] left-[4%] w-[260px] h-[120px] pointer-events-auto glass-panel rounded-[24px] p-5 flex flex-col justify-center shadow-[0_0_20px_rgba(77,163,255,0.2)]">
+            <div className="absolute top-[3%] lg:top-[5%] left-[2%] lg:left-[4%] w-[240px] h-[105px] pointer-events-auto glass-panel rounded-[20px] p-4 flex flex-col justify-center shadow-[0_0_20px_rgba(77,163,255,0.2)]">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-[16px] bg-brand-blue/20 flex items-center justify-center text-brand-blue">
                   <Users size={24} />
                 </div>
                 <div>
-                  <div className="text-3xl font-bold leading-none">{members.length}</div>
+                  <div className="text-2xl font-bold leading-none">{members.length}</div>
                   <div className="text-[11px] font-bold text-white tracking-wide">Team Members</div>
                 </div>
               </div>
@@ -100,20 +100,20 @@ export default function TeamDashboard() {
             </div>
 
             {/* 2. Total Projects Panel */}
-            <div className="absolute top-[8%] right-[4%] w-[200px] h-[110px] pointer-events-auto glass-panel rounded-[24px] p-5 flex flex-col justify-center shadow-[0_0_20px_rgba(139,92,246,0.2)]">
+            <div className="absolute top-[3%] lg:top-[5%] right-[2%] lg:right-[4%] w-[190px] h-[100px] pointer-events-auto glass-panel rounded-[20px] p-4 flex flex-col justify-center shadow-[0_0_20px_rgba(139,92,246,0.2)]">
                <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-[16px] bg-brand-gold/20 flex items-center justify-center text-brand-gold">
                   <FolderKanban size={24} />
                 </div>
                 <div>
-                  <div className="text-3xl font-bold leading-none">{totalProjects}</div>
+                  <div className="text-2xl font-bold leading-none">{totalProjects}</div>
                   <div className="text-[11px] font-bold text-white tracking-wide">Total Projects</div>
                 </div>
               </div>
             </div>
 
             {/* 3. Attendance Panel */}
-            <div className="absolute bottom-[10%] left-[8%] w-[200px] h-[110px] pointer-events-auto glass-panel rounded-[24px] p-5 flex flex-col justify-center shadow-[0_0_20px_rgba(77,163,255,0.2)] border border-brand-blue/30">
+            <div className="absolute bottom-[3%] lg:bottom-[8%] left-[5%] lg:left-[8%] w-[190px] h-[100px] pointer-events-auto glass-panel rounded-[20px] p-4 flex flex-col justify-center shadow-[0_0_20px_rgba(77,163,255,0.2)]">
                <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-full border-[3px] border-brand-blue/30 flex items-center justify-center relative">
                    <div className="w-8 h-8 rounded-full border-[3px] border-brand-blue border-r-transparent border-t-transparent" style={{ transform: 'rotate(45deg)' }} />
@@ -127,7 +127,7 @@ export default function TeamDashboard() {
             </div>
 
             {/* 4. Group Project Panel */}
-            <div className="absolute bottom-[10%] right-[8%] w-[200px] h-[110px] pointer-events-auto glass-panel rounded-[24px] p-5 flex flex-col justify-center shadow-[0_0_20px_rgba(139,92,246,0.3)] border border-brand-violet/40">
+            <div className="absolute bottom-[3%] lg:bottom-[8%] right-[5%] lg:right-[8%] w-[190px] h-[100px] pointer-events-auto glass-panel rounded-[20px] p-4 flex flex-col justify-center shadow-[0_0_20px_rgba(139,92,246,0.3)]">
                <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-[16px] bg-gradient-to-br from-white to-white/20 flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.5)]">
                   <Globe size={24} className="text-brand-bg-1" />
@@ -176,10 +176,10 @@ export default function TeamDashboard() {
         </div>
 
         {/* RIGHT REGION */}
-        <div className="w-[390px] xl:w-[420px] flex-shrink-0 flex flex-col gap-6 h-full overflow-y-auto hide-scrollbar pb-6 pr-2">
+        <div className="w-[360px] xl:w-[380px] flex-shrink-0 flex flex-col gap-5 h-full overflow-y-auto hide-scrollbar pb-6 pr-2">
           
           {/* Project Timeline Panel */}
-          <div className="glass-panel p-5 rounded-[24px] flex-shrink-0 h-[200px] flex flex-col">
+          <div className="glass-panel p-4 rounded-[20px] flex-shrink-0 h-[220px] flex flex-col">
             <div className="flex justify-between items-center mb-6">
               <h3 className="font-bold text-lg">Project Timeline</h3>
               <div className="flex items-center gap-1 text-[11px] font-bold bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-white/10">
@@ -215,7 +215,7 @@ export default function TeamDashboard() {
           </div>
 
           {/* Team Activity Panel */}
-          <div className="glass-panel p-5 rounded-[24px] flex-shrink-0 h-[230px] flex flex-col">
+          <div className="glass-panel p-4 rounded-[20px] flex-shrink-0 h-[220px] flex flex-col">
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center gap-3">
                 <h3 className="font-bold text-lg">Team Activity</h3>
@@ -250,7 +250,7 @@ export default function TeamDashboard() {
           </div>
 
           {/* Attention Zone Panel */}
-          <div className="glass-panel-danger p-5 rounded-[24px] flex-1 overflow-hidden relative min-h-[200px]">
+          <div className="glass-panel-danger p-4 rounded-[20px] flex-shrink-0 h-[260px] overflow-hidden relative">
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center gap-3 text-brand-red">
                 <div className="w-8 h-8 rounded-full bg-brand-red/20 flex items-center justify-center border border-brand-red/30 glow-red">

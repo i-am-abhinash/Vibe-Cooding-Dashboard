@@ -149,7 +149,7 @@ function Environment() {
 export function TeamScene({ progress }: { progress: number }) {
   return (
     <Canvas
-      camera={{ position: [0, 0.5, 7.5], fov: 45 }}
+      camera={{ position: [0, 0.3, 6], fov: 45 }}
       style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}
       dpr={[1, 2]}
     >
