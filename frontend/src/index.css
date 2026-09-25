@@ -62,11 +62,7 @@
     width: 1536px;
     height: 1024px;
     position: relative;
-    /* Move reference background here so it scales with the canvas */
-    background-image: url('/reference.png');
-    background-size: 1536px 1024px;
-    background-position: top center;
-    background-repeat: no-repeat;
+    background-color: transparent;
   }
 
   /* Glassmorphism perfectly tuned to mask the background UI and blend in */
