@@ -44,10 +44,7 @@ export default function AppShell({ children }: AppShellProps) {
   return (
     <div className="exact-container-wrapper font-sans">
       <div className="exact-container-scaler">
-        <div 
-          className="exact-container"
-        style={{ transform: `translate(${mousePos.x * -0.5}px, ${mousePos.y * -0.5}px)` }}
-      >
+        <div className="exact-container">
         
         {/* SVG Filter for Glass Refraction */}
         <svg width="0" height="0" className="absolute pointer-events-none">
@@ -59,12 +56,12 @@ export default function AppShell({ children }: AppShellProps) {
 
         {/* Exact Floating Sidebar Pill - PHYSICAL GLASS REBUILD */}
         <aside 
-          className="absolute left-[13px] top-[12px] bottom-[23px] w-[114px] rounded-[34px] flex flex-col items-center py-8 z-50 transition-transform duration-100 ease-out"
-          style={{ transform: `translate(${mousePos.x * 0.5}px, ${mousePos.y * 0.5}px)` }}
+          className="absolute left-[13px] top-[12px] bottom-[23px] w-[114px] rounded-[34px] flex flex-col items-center py-8 z-[100] transition-transform duration-100 ease-out"
+          style={{ transform: `translate(${mousePos.x * 2}px, ${mousePos.y * 2}px)` }}
         >
           {/* LAYER 1 & 2: Glass Body, Blur, and Refraction */}
           <div 
-            className="absolute inset-0 rounded-[34px] -z-20"
+            className="absolute inset-0 rounded-[34px] z-0"
             style={{
               background: 'rgba(8, 15, 32, 0.35)', // Dark transparent glass body
               backdropFilter: 'blur(20px) url(#glass-refraction)',
@@ -75,7 +72,7 @@ export default function AppShell({ children }: AppShellProps) {
 
           {/* LAYER 3: Glass Thickness & Inner Highlight */}
           <div 
-            className="absolute inset-[1px] rounded-[33px] -z-10 pointer-events-none"
+            className="absolute inset-[1px] rounded-[33px] z-10 pointer-events-none"
             style={{
               border: '1px solid rgba(255, 255, 255, 0.05)', // Extremely thin inner surface
               boxShadow: 'inset 0 0 20px rgba(139, 92, 246, 0.1), inset 1px 1px 3px rgba(255, 255, 255, 0.15)', // Light trapped inside
@@ -84,7 +81,7 @@ export default function AppShell({ children }: AppShellProps) {
 
           {/* LAYER 4, 5 & 6: Edge Reflection, Specular Highlights & Environment Color */}
           <div 
-            className="absolute inset-0 rounded-[34px] -z-10 pointer-events-none overflow-hidden"
+            className="absolute inset-0 rounded-[34px] z-10 pointer-events-none overflow-hidden"
             style={{
               // Edge reflection interacting with light
               borderTop: '1.5px solid rgba(255, 255, 255, 0.4)',
@@ -107,13 +104,13 @@ export default function AppShell({ children }: AppShellProps) {
           </div>
 
           {/* Logo Area */}
-          <div className="flex flex-col items-center gap-1 mb-10 relative z-10" style={{ transform: 'translateZ(1px)' }}>
+          <div className="flex flex-col items-center gap-1 mb-10 relative z-20" style={{ transform: 'translateZ(1px)' }}>
             <span className="font-extrabold text-xl leading-none text-white tracking-wide drop-shadow-[0_2px_10px_rgba(255,255,255,0.4)]">VIBE</span>
             <span className="text-[10px] text-brand-blue-1 tracking-[0.25em] font-bold drop-shadow-[0_0_8px_rgba(77,163,255,0.5)]">CODING</span>
           </div>
 
           {/* Navigation Items */}
-          <nav className="flex-1 w-full flex flex-col gap-5 items-center relative z-10">
+          <nav className="flex-1 w-full flex flex-col gap-5 items-center relative z-20">
             {navItems.map(item => {
               const isActive = location.pathname === item.path || (item.path !== '/team' && location.pathname.startsWith(item.path));
               
@@ -122,7 +119,7 @@ export default function AppShell({ children }: AppShellProps) {
                   <button
                     key={item.name}
                     onClick={() => navigate(item.path)}
-                    className="flex flex-col items-center gap-2 group relative z-10 w-full"
+                    className="flex flex-col items-center gap-2 group relative z-20 w-full"
                   >
                     {/* Active circular glowing physical glass control */}
                     <div className="relative w-[46px] h-[46px] rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-105"
@@ -139,7 +136,7 @@ export default function AppShell({ children }: AppShellProps) {
                       {/* Internal spherical specular highlight */}
                       <div className="absolute top-[2px] left-[15%] w-[70%] h-[35%] rounded-t-full bg-gradient-to-b from-white/40 to-transparent pointer-events-none" />
                       
-                      <div className="text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.9)] relative z-10">
+                      <div className="text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.9)] relative z-20">
                         {item.icon}
                       </div>
                     </div>
@@ -166,7 +163,7 @@ export default function AppShell({ children }: AppShellProps) {
           {/* Bottom Orb */}
           <div className="mt-auto mb-2 relative group cursor-pointer z-10">
             {/* Environmental glow from bottom */}
-            <div className="absolute -inset-8 bg-brand-blue/15 blur-[25px] rounded-full -z-10" />
+            <div className="absolute -inset-8 bg-brand-blue/15 blur-[25px] rounded-full z-10" />
             
             <div className="relative w-[42px] h-[42px] rounded-full flex items-center justify-center transition-transform duration-500 group-hover:scale-110"
               style={{
@@ -184,7 +181,7 @@ export default function AppShell({ children }: AppShellProps) {
         {/* Top Header */}
         <header 
           className="absolute left-[124px] right-[24px] top-[24px] h-[64px] flex items-center justify-between z-40 transition-transform duration-100 ease-out"
-          style={{ transform: `translate(${mousePos.x * 0.5}px, ${mousePos.y * 0.5}px)` }}
+          style={{ transform: `translate(${mousePos.x * 2}px, ${mousePos.y * 2}px)` }}
         >
           {/* Greeting */}
           <div className="flex items-center gap-4">
@@ -192,7 +189,7 @@ export default function AppShell({ children }: AppShellProps) {
                👋
              </div>
              <div className="flex flex-col justify-center">
-               <h1 className="font-bold text-xl tracking-tight text-white m-0 leading-tight">Good Evening, Team Lead</h1>
+               <h1 className="font-bold text-2xl tracking-tight text-white m-0 leading-tight">Good Evening, Team Lead</h1>
                <p className="text-brand-text-muted text-sm font-medium m-0 leading-tight">Here's what's happening with your team today.</p>
              </div>
           </div>
@@ -230,11 +227,11 @@ export default function AppShell({ children }: AppShellProps) {
         {/* MAIN CONTENT CANVAS */}
         <main 
           className="absolute left-[124px] right-[24px] top-[104px] bottom-[24px] z-10 transition-transform duration-100 ease-out"
-          style={{ transform: `translate(${mousePos.x * 1}px, ${mousePos.y * 1}px)` }}
+          
         >
           {children}
         </main>
-              </div>
+        </div>
       </div>
     </div>
   );

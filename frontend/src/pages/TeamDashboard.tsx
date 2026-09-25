@@ -154,35 +154,21 @@ export default function TeamDashboard() {
             </div>
             
             <div className="flex-1 relative mt-2">
-              <svg width="100%" height="100%" viewBox="0 0 400 100" preserveAspectRatio="none" className="drop-shadow-[0_0_15px_rgba(77,163,255,0.3)]">
-                  <defs>
-                    <linearGradient id="timelineArea1" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#4DA3FF" stopOpacity="0.4"/>
-                      <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0.0"/>
-                    </linearGradient>
-                    <linearGradient id="timelineArea2" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.3"/>
-                      <stop offset="100%" stopColor="#1E1A33" stopOpacity="0.0"/>
-                    </linearGradient>
-                    <linearGradient id="timelineLine1" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="#4DA3FF" stopOpacity="0.8"/>
-                      <stop offset="50%" stopColor="#8B5CF6" stopOpacity="1"/>
-                      <stop offset="100%" stopColor="#4DA3FF" stopOpacity="0.8"/>
-                    </linearGradient>
-                  </defs>
-                  {/* Background subtle mountain layer */}
-                  <path d="M0,80 Q50,60 100,75 T220,50 T330,70 T400,60 L400,100 L0,100 Z" fill="url(#timelineArea2)" opacity="0.6" />
-                  
-                  {/* Foreground dynamic wave */}
-                  <path d="M0,60 Q80,20 150,50 T280,30 T400,45 L400,100 L0,100 Z" fill="url(#timelineArea1)" opacity="0.8" />
-                  <path d="M0,60 Q80,20 150,50 T280,30 T400,45" fill="none" stroke="url(#timelineLine1)" strokeWidth="2.5" />
-                  
-                  {/* Today vertical line */}
-                  <line x1="280" y1="10" x2="280" y2="100" stroke="#4DA3FF" strokeWidth="1" strokeDasharray="4 4" opacity="0.5" />
-                  {/* Glowing points */}
-                  <circle cx="150" cy="50" r="4" fill="#8B5CF6" stroke="#fff" strokeWidth="1.5" className="drop-shadow-[0_0_8px_rgba(139,92,246,0.8)]" />
-                  <circle cx="280" cy="30" r="5" fill="#4DA3FF" stroke="#fff" strokeWidth="2" className="drop-shadow-[0_0_10px_rgba(77,163,255,1)]" />
-                </svg>
+              <svg width="100%" height="100%" viewBox="0 0 400 100" preserveAspectRatio="none">
+                <path d="M0,50 Q50,90 100,50 T200,50 T300,50 T400,50 L400,100 L0,100 Z" fill="url(#timelineArea)" opacity="0.4" />
+                <path d="M0,50 Q50,90 100,50 T200,50 T300,50 T400,50" fill="none" stroke="url(#timelineLine)" strokeWidth="3" />
+                <defs>
+                  <linearGradient id="timelineArea" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#4DA3FF" stopOpacity="0.8"/>
+                    <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0"/>
+                  </linearGradient>
+                  <linearGradient id="timelineLine" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#2ED47A" />
+                    <stop offset="50%" stopColor="#4DA3FF" />
+                    <stop offset="100%" stopColor="#F5A623" />
+                  </linearGradient>
+                </defs>
+              </svg>
               {/* Nodes and Labels */}
               <div className="absolute inset-0 flex justify-between items-end pb-2 px-4">
                 {[
@@ -248,7 +234,7 @@ export default function TeamDashboard() {
           </div>
 
           {/* Attention Zone Panel */}
-          <div className="glass-panel p-6 rounded-[24px] flex-1 overflow-hidden relative">
+          <div className="glass-panel-danger p-6 rounded-[24px] flex-1 overflow-hidden relative">
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center gap-3 text-brand-red">
                 <div className="w-8 h-8 rounded-full bg-brand-red/20 flex items-center justify-center border border-brand-red/30 glow-red">
@@ -268,7 +254,7 @@ export default function TeamDashboard() {
                 { title: 'Rahul', sub: 'Project modification overdue', icon: <CircleUserRound size={16}/>, bg: 'bg-brand-orange/20 text-brand-orange', badge: 'Medium', bColor: 'bg-brand-orange/20 text-brand-orange border border-brand-orange/30' },
                 { title: 'Group Project', sub: '2 pending PR reviews', icon: <FileCheck size={16}/>, bg: 'bg-brand-blue/20 text-brand-blue', badge: 'Low', bColor: 'bg-brand-blue/20 text-brand-blue border border-brand-blue/30' },
               ].map((item, i) => (
-                <div key={i} className="flex items-center justify-between p-3 rounded-[16px] bg-black/20 border border-white/5 shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)] hover:bg-white/5 cursor-pointer">
+                <div key={i} className="flex items-center justify-between p-3 rounded-[16px] bg-white/5 border border-white/5 hover:bg-white/10 cursor-pointer">
                   <div className="flex items-center gap-4">
                     <div className={`w-10 h-10 rounded-[12px] flex items-center justify-center ${item.bg}`}>
                       {item.icon}
