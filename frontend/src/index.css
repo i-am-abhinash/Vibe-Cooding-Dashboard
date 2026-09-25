@@ -34,23 +34,39 @@
     background-color: var(--brand-bg-1);
     color: #FFFFFF;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    overflow-x: hidden;
+    overflow: hidden; /* Prevent all scrollbars on body */
     margin: 0;
     -webkit-font-smoothing: antialiased;
-    /* The exact reference image as the background */
-    background-image: url('/reference.png');
-    background-size: 1536px 1024px;
-    background-position: top center;
-    background-repeat: no-repeat;
   }
 }
 
 @layer utilities {
+  .exact-container-wrapper {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .exact-container-scaler {
+    width: 1536px;
+    height: 1024px;
+    flex-shrink: 0;
+    transform: scale(min(calc(100vw / 1536), calc(100vh / 1024)));
+    transform-origin: center;
+  }
+
   .exact-container {
     width: 1536px;
     height: 1024px;
-    margin: 0 auto;
     position: relative;
+    /* Move reference background here so it scales with the canvas */
+    background-image: url('/reference.png');
+    background-size: 1536px 1024px;
+    background-position: top center;
+    background-repeat: no-repeat;
   }
 
   /* Glassmorphism perfectly tuned to mask the background UI and blend in */
