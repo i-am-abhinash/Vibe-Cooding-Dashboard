@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
+
 import { Search, Bell, ChevronDown, LayoutDashboard, Users, FolderKanban, UsersRound, FileCheck, TrendingUp, FileText, Settings, Globe } from 'lucide-react';
-import { useEffect, useState } from 'react';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -14,20 +14,6 @@ export default function AppShell({ children }: AppShellProps) {
   const user = userStr ? JSON.parse(userStr) : null;
   const isTeamLead = ['team_lead', 'co_lead'].includes(user?.role);
   
-  // Subtle parallax
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePos({
-        x: (e.clientX / window.innerWidth - 0.5) * 2,
-        y: (e.clientY / window.innerHeight - 0.5) * 2
-      });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
   const navItems = isTeamLead ? [
     { name: 'Overview', path: '/team', icon: <LayoutDashboard size={20} /> },
     { name: 'Members', path: '/team/members', icon: <Users size={20} /> },
@@ -42,26 +28,25 @@ export default function AppShell({ children }: AppShellProps) {
   ];
 
   return (
-    <div className="exact-container-wrapper font-sans">
-      <div className="exact-container-scaler">
-        <div className="exact-container">
-        
-        {/* SVG Filter for Glass Refraction */}
-        <svg width="0" height="0" className="absolute pointer-events-none">
-          <filter id="glass-refraction">
-            <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" result="noise" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G" />
-          </filter>
-        </svg>
+    <div className="viewport font-sans bg-brand-bg-1" style={{ width: '100vw', height: '100vh', overflow: 'hidden', display: 'flex' }}>
+      
+      {/* SVG Filter for Glass Refraction */}
+      <svg width="0" height="0" className="absolute pointer-events-none">
+        <filter id="glass-refraction">
+          <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" result="noise" />
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </svg>
 
-        {/* Exact Floating Sidebar Pill - PHYSICAL GLASS REBUILD */}
+      {/* LEFT SIDEBAR REGION - Responsive fixed width */}
+      <div className="w-[110px] lg:w-[125px] h-full py-4 pl-4 pr-2 flex-shrink-0 relative z-[100]">
         <aside 
-          className="absolute left-[13px] top-[12px] bottom-[23px] w-[114px] rounded-[34px] flex flex-col items-center py-8 z-[100]"
-          style={{ transform: `translate(${mousePos.x * 2}px, ${mousePos.y * 2}px)` }}
+          className="w-full h-full rounded-[34px] flex flex-col items-center py-8 relative"
+          
         >
           {/* LAYER 1 & 2: Glass Body, Blur, and Refraction */}
           <div 
-            className="absolute inset-0 rounded-[34px] z-0"
+            className="absolute inset-0 rounded-[34px] z-[0]"
             style={{
               background: 'rgba(8, 15, 32, 0.35)', // Dark transparent glass body
               backdropFilter: 'blur(20px) url(#glass-refraction)',
@@ -72,7 +57,7 @@ export default function AppShell({ children }: AppShellProps) {
 
           {/* LAYER 3: Glass Thickness & Inner Highlight */}
           <div 
-            className="absolute inset-[1px] rounded-[33px] z-10 pointer-events-none"
+            className="absolute inset-[1px] rounded-[33px] z-[10] pointer-events-none"
             style={{
               border: '1px solid rgba(255, 255, 255, 0.05)', // Extremely thin inner surface
               boxShadow: 'inset 0 0 20px rgba(139, 92, 246, 0.1), inset 1px 1px 3px rgba(255, 255, 255, 0.15)', // Light trapped inside
@@ -81,7 +66,7 @@ export default function AppShell({ children }: AppShellProps) {
 
           {/* LAYER 4, 5 & 6: Edge Reflection, Specular Highlights & Environment Color */}
           <div 
-            className="absolute inset-0 rounded-[34px] z-10 pointer-events-none overflow-hidden"
+            className="absolute inset-0 rounded-[34px] z-[10] pointer-events-none overflow-hidden"
             style={{
               // Edge reflection interacting with light
               borderTop: '1.5px solid rgba(255, 255, 255, 0.4)',
@@ -104,13 +89,13 @@ export default function AppShell({ children }: AppShellProps) {
           </div>
 
           {/* Logo Area */}
-          <div className="flex flex-col items-center gap-1 mb-10 relative z-20" style={{ transform: 'translateZ(1px)' }}>
+          <div className="flex flex-col items-center gap-1 mb-10 relative z-[20]" style={{ transform: 'translateZ(1px)' }}>
             <span className="font-extrabold text-xl leading-none text-white tracking-wide drop-shadow-[0_2px_10px_rgba(255,255,255,0.4)]">VIBE</span>
             <span className="text-[10px] text-brand-blue-1 tracking-[0.25em] font-bold drop-shadow-[0_0_8px_rgba(77,163,255,0.5)]">CODING</span>
           </div>
 
           {/* Navigation Items */}
-          <nav className="flex-1 w-full flex flex-col gap-5 items-center relative z-20">
+          <nav className="flex-1 w-full flex flex-col gap-5 items-center relative z-[20]">
             {navItems.map(item => {
               const isActive = location.pathname === item.path || (item.path !== '/team' && location.pathname.startsWith(item.path));
               
@@ -119,7 +104,7 @@ export default function AppShell({ children }: AppShellProps) {
                   <button
                     key={item.name}
                     onClick={() => navigate(item.path)}
-                    className="flex flex-col items-center gap-2 group relative z-20 w-full"
+                    className="flex flex-col items-center gap-2 group relative z-[20] w-full"
                   >
                     {/* Active circular glowing physical glass control */}
                     <div className="relative w-[46px] h-[46px] rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-105"
@@ -136,7 +121,7 @@ export default function AppShell({ children }: AppShellProps) {
                       {/* Internal spherical specular highlight */}
                       <div className="absolute top-[2px] left-[15%] w-[70%] h-[35%] rounded-t-full bg-gradient-to-b from-white/40 to-transparent pointer-events-none" />
                       
-                      <div className="text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.9)] relative z-20">
+                      <div className="text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.9)] relative z-[20]">
                         {item.icon}
                       </div>
                     </div>
@@ -161,9 +146,9 @@ export default function AppShell({ children }: AppShellProps) {
           </nav>
 
           {/* Bottom Orb */}
-          <div className="mt-auto mb-2 relative group cursor-pointer z-10">
+          <div className="mt-auto mb-2 relative group cursor-pointer z-[10]">
             {/* Environmental glow from bottom */}
-            <div className="absolute -inset-8 bg-brand-blue/15 blur-[25px] rounded-full z-10" />
+            <div className="absolute -inset-8 bg-brand-blue/15 blur-[25px] rounded-full z-[10]" />
             
             <div className="relative w-[42px] h-[42px] rounded-full flex items-center justify-center transition-transform duration-500 group-hover:scale-110"
               style={{
@@ -177,12 +162,13 @@ export default function AppShell({ children }: AppShellProps) {
             </div>
           </div>
         </aside>
+      </div>
 
+      {/* MAIN REGION - Flexible width */}
+      <main className="flex-1 h-full flex flex-col relative z-[10] overflow-hidden pr-6 py-4">
+        
         {/* Top Header */}
-        <header 
-          className="absolute left-[124px] right-[24px] top-[24px] h-[64px] flex items-center justify-between z-40 transition-transform duration-100 ease-out"
-          style={{ transform: `translate(${mousePos.x * 2}px, ${mousePos.y * 2}px)` }}
-        >
+        <header className="flex-shrink-0 h-[64px] flex items-center justify-between z-[40] mb-6">
           {/* Greeting */}
           <div className="flex items-center gap-4">
              <div className="w-10 h-10 rounded-xl glass-panel flex items-center justify-center text-xl border border-white/20">
@@ -225,14 +211,10 @@ export default function AppShell({ children }: AppShellProps) {
         </header>
 
         {/* MAIN CONTENT CANVAS */}
-        <main 
-          className="absolute left-[124px] right-[24px] top-[104px] bottom-[24px] z-10 transition-transform duration-100 ease-out"
-          
-        >
+          <div className="flex-1 relative min-h-0 w-full overflow-hidden">
           {children}
-        </main>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

@@ -45,34 +45,7 @@
 }
 
 @layer utilities {
-    .exact-container-wrapper {
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-  }
-
-  .exact-container-scaler {
-    width: 1536px;
-    height: 1024px;
-    flex-shrink: 0;
-    transform: scale(min(calc(100vw / 1536), calc(100vh / 1024)));
-    transform-origin: center;
-  }
-
-  .exact-container {
-    width: 1536px;
-    height: 1024px;
-    position: relative;
-    /* Dark atmospheric environment */
-    background: #05060A;
-    background-image: 
-      radial-gradient(circle at 10% 20%, rgba(30, 45, 90, 0.15) 0%, transparent 40%),
-      radial-gradient(circle at 90% 80%, rgba(50, 20, 80, 0.15) 0%, transparent 40%),
-      radial-gradient(circle at 50% 50%, rgba(20, 25, 40, 0.2) 0%, transparent 60%);
-  }
+    
 
   /* Glassmorphism perfectly tuned to mask the background UI and blend in */
   .glass-panel {
@@ -107,5 +80,15 @@
   
   .glow-green {
     box-shadow: 0 0 20px rgba(46, 212, 122, 0.6);
+  }
+  .viewport {
+    background: #020307;
+  }
+  
+  .dashboard-canvas {
+    background: radial-gradient(circle at 15% 50%, rgba(30, 45, 90, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 85% 30%, rgba(50, 20, 80, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 50% 100%, rgba(20, 30, 50, 0.2) 0%, transparent 50%),
+                #020307;
   }
 }

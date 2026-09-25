@@ -102,7 +102,7 @@ function CoreObject({ progress }: { progress: number }) {
       {/* 3D Typography */}
       <Text
         position={[0, 0.4, 2.3]}
-        fontSize={0.2}
+        fontSize={0.12}
         color="#FFFFFF"
         anchorX="center"
         anchorY="middle"
@@ -112,7 +112,7 @@ function CoreObject({ progress }: { progress: number }) {
       </Text>
       <Text
         position={[0, 0, 2.3]}
-        fontSize={0.8}
+        fontSize={0.45}
         color="#FFFFFF"
         anchorX="center"
         anchorY="middle"
@@ -121,8 +121,8 @@ function CoreObject({ progress }: { progress: number }) {
         {progress}%
       </Text>
       <Text
-        position={[0, -0.5, 2.3]}
-        fontSize={0.15}
+        position={[0, -0.4, 2.3]}
+        fontSize={0.1}
         color="#2ED47A"
         anchorX="center"
         anchorY="middle"
@@ -149,7 +149,7 @@ function Environment() {
 export function TeamScene({ progress }: { progress: number }) {
   return (
     <Canvas
-      camera={{ position: [0, 1, 9], fov: 45 }}
+      camera={{ position: [0, 0.5, 7.5], fov: 45 }}
       style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}
       dpr={[1, 2]}
     >
