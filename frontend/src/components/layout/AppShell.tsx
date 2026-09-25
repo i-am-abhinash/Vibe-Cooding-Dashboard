@@ -46,7 +46,7 @@ export default function AppShell({ children }: AppShellProps) {
       <div className="exact-container-scaler">
         <div 
           className="exact-container"
-        style={{ transform: `translate(${mousePos.x * -2}px, ${mousePos.y * -2}px)` }}
+        style={{ transform: `translate(${mousePos.x * -0.5}px, ${mousePos.y * -0.5}px)` }}
       >
         
         {/* SVG Filter for Glass Refraction */}
@@ -60,7 +60,7 @@ export default function AppShell({ children }: AppShellProps) {
         {/* Exact Floating Sidebar Pill - PHYSICAL GLASS REBUILD */}
         <aside 
           className="absolute left-[13px] top-[12px] bottom-[23px] w-[114px] rounded-[34px] flex flex-col items-center py-8 z-50 transition-transform duration-100 ease-out"
-          style={{ transform: `translate(${mousePos.x * 2}px, ${mousePos.y * 2}px)` }}
+          style={{ transform: `translate(${mousePos.x * 0.5}px, ${mousePos.y * 0.5}px)` }}
         >
           {/* LAYER 1 & 2: Glass Body, Blur, and Refraction */}
           <div 
@@ -184,7 +184,7 @@ export default function AppShell({ children }: AppShellProps) {
         {/* Top Header */}
         <header 
           className="absolute left-[124px] right-[24px] top-[24px] h-[64px] flex items-center justify-between z-40 transition-transform duration-100 ease-out"
-          style={{ transform: `translate(${mousePos.x * 2}px, ${mousePos.y * 2}px)` }}
+          style={{ transform: `translate(${mousePos.x * 0.5}px, ${mousePos.y * 0.5}px)` }}
         >
           {/* Greeting */}
           <div className="flex items-center gap-4">
@@ -230,7 +230,7 @@ export default function AppShell({ children }: AppShellProps) {
         {/* MAIN CONTENT CANVAS */}
         <main 
           className="absolute left-[124px] right-[24px] top-[104px] bottom-[24px] z-10 transition-transform duration-100 ease-out"
-          style={{ transform: `translate(${mousePos.x * 3}px, ${mousePos.y * 3}px)` }}
+          style={{ transform: `translate(${mousePos.x * 1}px, ${mousePos.y * 1}px)` }}
         >
           {children}
         </main>
