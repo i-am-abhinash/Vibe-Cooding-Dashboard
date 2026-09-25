@@ -48,30 +48,67 @@ export default function AppShell({ children }: AppShellProps) {
         style={{ transform: `translate(${mousePos.x * -2}px, ${mousePos.y * -2}px)` }}
       >
         
-        {/* Exact Floating Sidebar Pill */}
+        {/* SVG Filter for Glass Refraction */}
+        <svg width="0" height="0" className="absolute pointer-events-none">
+          <filter id="glass-refraction">
+            <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+        </svg>
+
+        {/* Exact Floating Sidebar Pill - PHYSICAL GLASS REBUILD */}
         <aside 
-          className="absolute left-[13px] top-[12px] bottom-[23px] w-[130px] rounded-[34px] flex flex-col items-center py-10 z-50 transition-transform duration-100 ease-out overflow-hidden"
-          style={{ 
-            transform: `translate(${mousePos.x * 2}px, ${mousePos.y * 2}px)`,
-            background: 'rgba(12, 16, 28, 0.45)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            border: '1px solid rgba(139, 192, 255, 0.2)',
-            boxShadow: 'inset 0 0 20px rgba(139, 92, 246, 0.1), inset 1px 1px 2px rgba(255, 255, 255, 0.15), 0 20px 40px rgba(0,0,0,0.5)',
-          }}
+          className="absolute left-[13px] top-[12px] bottom-[23px] w-[130px] rounded-[34px] flex flex-col items-center py-10 z-50 transition-transform duration-100 ease-out"
+          style={{ transform: `translate(${mousePos.x * 2}px, ${mousePos.y * 2}px)` }}
         >
-          {/* Subtle reflection overlay moving with mouse */}
+          {/* LAYER 1 & 2: Glass Body, Blur, and Refraction */}
           <div 
-            className="absolute inset-0 pointer-events-none opacity-30"
+            className="absolute inset-0 rounded-[34px] -z-20"
             style={{
-              background: `radial-gradient(circle 200px at ${50 + mousePos.x * 50}% ${50 + mousePos.y * 50}%, rgba(255,255,255,0.1) 0%, transparent 100%)`
+              background: 'rgba(8, 15, 32, 0.35)', // Dark transparent glass body
+              backdropFilter: 'blur(20px) url(#glass-refraction)',
+              WebkitBackdropFilter: 'blur(20px)',
+              boxShadow: '0 30px 60px rgba(0,0,0,0.7)', // Soft dark depth shadow separating it from environment
             }}
           />
 
+          {/* LAYER 3: Glass Thickness & Inner Highlight */}
+          <div 
+            className="absolute inset-[1px] rounded-[33px] -z-10 pointer-events-none"
+            style={{
+              border: '1px solid rgba(255, 255, 255, 0.05)', // Extremely thin inner surface
+              boxShadow: 'inset 0 0 20px rgba(139, 92, 246, 0.1), inset 1px 1px 3px rgba(255, 255, 255, 0.15)', // Light trapped inside
+            }}
+          />
+
+          {/* LAYER 4, 5 & 6: Edge Reflection, Specular Highlights & Environment Color */}
+          <div 
+            className="absolute inset-0 rounded-[34px] -z-10 pointer-events-none overflow-hidden"
+            style={{
+              // Edge reflection interacting with light
+              borderTop: '1.5px solid rgba(255, 255, 255, 0.4)',
+              borderLeft: '1px solid rgba(77, 163, 255, 0.3)',
+              borderRight: '1px solid rgba(139, 92, 246, 0.15)',
+              borderBottom: '1px solid rgba(20, 30, 50, 0.4)',
+              // Depth gradient and subtle environment reflection
+              background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 25%, rgba(139,92,246,0.03) 75%, rgba(77,163,255,0.08) 100%)',
+            }}
+          >
+            {/* Specular curved reflection on the surface */}
+            <div 
+              className="absolute top-0 left-[15%] w-[40%] h-[30%] opacity-40 rounded-full"
+              style={{
+                background: 'radial-gradient(ellipse at top left, rgba(255,255,255,0.2) 0%, transparent 70%)',
+                transform: 'rotate(-25deg) scaleY(2)',
+                filter: 'blur(4px)'
+              }}
+            />
+          </div>
+
           {/* Logo Area */}
-          <div className="flex flex-col items-center gap-1 mb-12 relative z-10">
-            <span className="font-extrabold text-2xl leading-none text-white tracking-wide" style={{ textShadow: '0 0 10px rgba(255,255,255,0.3)' }}>VIBE</span>
-            <span className="text-[10px] text-brand-blue-1 tracking-[0.25em] font-bold">CODING</span>
+          <div className="flex flex-col items-center gap-1 mb-12 relative z-10" style={{ transform: 'translateZ(1px)' }}>
+            <span className="font-extrabold text-2xl leading-none text-white tracking-wide drop-shadow-[0_2px_10px_rgba(255,255,255,0.4)]">VIBE</span>
+            <span className="text-[10px] text-brand-blue-1 tracking-[0.25em] font-bold drop-shadow-[0_0_8px_rgba(77,163,255,0.5)]">CODING</span>
           </div>
 
           {/* Navigation Items */}
@@ -85,21 +122,27 @@ export default function AppShell({ children }: AppShellProps) {
                     key={item.name}
                     onClick={() => navigate(item.path)}
                     className="flex flex-col items-center gap-2 group relative z-10 w-full"
-                    style={{ transform: 'translateZ(10px)' }}
                   >
-                    {/* Active circular glowing glass control */}
+                    {/* Active circular glowing physical glass control */}
                     <div className="relative w-[55px] h-[55px] rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-105"
                       style={{
-                        background: 'rgba(77, 163, 255, 0.15)',
-                        border: '1px solid rgba(77, 163, 255, 0.5)',
-                        boxShadow: '0 0 30px rgba(77, 163, 255, 0.4), inset 0 0 15px rgba(77, 163, 255, 0.5), inset 0 2px 4px rgba(255,255,255,0.3)'
+                        background: 'rgba(20, 30, 50, 0.4)',
+                        backdropFilter: 'blur(8px)',
+                        // Rim light
+                        borderTop: '1.5px solid rgba(255, 255, 255, 0.6)',
+                        borderBottom: '1px solid rgba(77, 163, 255, 0.2)',
+                        // Inner blue light and slight shadow depth
+                        boxShadow: '0 8px 16px rgba(0,0,0,0.5), inset 0 0 20px rgba(77, 163, 255, 0.6), inset 0 -4px 12px rgba(77, 163, 255, 0.4)'
                       }}
                     >
-                      <div className="text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">
+                      {/* Internal spherical specular highlight */}
+                      <div className="absolute top-[2px] left-[15%] w-[70%] h-[35%] rounded-t-full bg-gradient-to-b from-white/40 to-transparent pointer-events-none" />
+                      
+                      <div className="text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.9)] relative z-10">
                         {item.icon}
                       </div>
                     </div>
-                    <span className="text-[11px] font-bold text-white tracking-wide drop-shadow-[0_0_5px_rgba(77,163,255,0.8)]">{item.name}</span>
+                    <span className="text-[11px] font-bold text-white tracking-wide drop-shadow-[0_2px_8px_rgba(77,163,255,0.8)]">{item.name}</span>
                   </button>
                 )
               }
@@ -110,10 +153,10 @@ export default function AppShell({ children }: AppShellProps) {
                   onClick={() => navigate(item.path)}
                   className="flex flex-col items-center gap-2 group w-full transition-all duration-300 hover:-translate-y-[1px] hover:scale-[1.02]"
                 >
-                  <div className="text-brand-text-muted/70 group-hover:text-brand-blue-2 transition-colors duration-300 drop-shadow-[0_0_0_rgba(0,0,0,0)] group-hover:drop-shadow-[0_0_8px_rgba(77,163,255,0.6)]">
+                  <div className="text-brand-text-muted/60 group-hover:text-brand-blue-2 transition-colors duration-300 group-hover:drop-shadow-[0_0_8px_rgba(77,163,255,0.6)]">
                     {item.icon}
                   </div>
-                  <span className="text-[11px] font-bold text-brand-text-muted/60 group-hover:text-white transition-colors duration-300 tracking-wide">{item.name}</span>
+                  <span className="text-[11px] font-bold text-brand-text-muted/50 group-hover:text-white transition-colors duration-300 tracking-wide">{item.name}</span>
                 </button>
               )
             })}
@@ -122,16 +165,17 @@ export default function AppShell({ children }: AppShellProps) {
           {/* Bottom Orb */}
           <div className="mt-auto mb-2 relative group cursor-pointer z-10">
             {/* Environmental glow from bottom */}
-            <div className="absolute -inset-6 bg-brand-blue/10 blur-[20px] rounded-full -z-10" />
+            <div className="absolute -inset-8 bg-brand-blue/15 blur-[25px] rounded-full -z-10" />
             
             <div className="relative w-[50px] h-[50px] rounded-full flex items-center justify-center transition-transform duration-500 group-hover:scale-110"
               style={{
-                background: 'radial-gradient(circle at 30% 30%, rgba(139, 192, 255, 0.8) 0%, rgba(77, 163, 255, 0.2) 60%, rgba(14, 18, 30, 0.9) 100%)',
-                boxShadow: '0 0 25px rgba(77, 163, 255, 0.5), inset -2px -2px 6px rgba(0,0,0,0.5), inset 2px 2px 6px rgba(255,255,255,0.4)',
-                border: '1px solid rgba(255,255,255,0.2)'
+                background: 'radial-gradient(circle at 35% 35%, rgba(139, 192, 255, 0.9) 0%, rgba(77, 163, 255, 0.3) 50%, rgba(10, 15, 25, 0.9) 100%)',
+                boxShadow: '0 10px 20px rgba(0,0,0,0.6), 0 0 30px rgba(77, 163, 255, 0.4), inset -3px -3px 8px rgba(0,0,0,0.6), inset 2px 2px 8px rgba(255,255,255,0.5)',
+                borderTop: '1px solid rgba(255,255,255,0.4)',
+                borderBottom: '1px solid rgba(77,163,255,0.2)'
               }}
             >
-              <Globe size={22} className="text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]" />
+              <Globe size={22} className="text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.9)]" />
             </div>
           </div>
         </aside>
