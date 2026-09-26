@@ -22,87 +22,105 @@ function CoreObject({ progress }: { progress: number }) {
     if (outerRing2.current) outerRing2.current.rotation.z -= 0.003;
   });
 
-  return (
+    return (
     <group ref={group} position={[0, 0.5, 0]}>
       {/* Platform / Pedestal */}
       <group position={[0, -3.5, 0]}>
-        <Cylinder args={[3, 3.5, 0.2, 64]} position={[0, 0, 0]}>
-          <meshStandardMaterial color="#0A0C12" metalness={0.8} roughness={0.2} />
+        {/* Base plate */}
+        <Cylinder args={[3.2, 3.5, 0.4, 64]} position={[0, 0, 0]}>
+          <meshStandardMaterial color="#0A0C12" metalness={0.9} roughness={0.3} />
         </Cylinder>
-        <Cylinder args={[2.5, 3, 0.3, 64]} position={[0, 0.25, 0]}>
-          <meshStandardMaterial color="#121621" metalness={0.6} roughness={0.4} />
+        {/* Mid step */}
+        <Cylinder args={[2.8, 3.2, 0.3, 64]} position={[0, 0.35, 0]}>
+          <meshStandardMaterial color="#151A28" metalness={0.8} roughness={0.2} />
         </Cylinder>
-        {/* Glowing ring on pedestal */}
-        <Cylinder args={[2.4, 2.4, 0.35, 64]} position={[0, 0.25, 0]}>
-          <meshBasicMaterial color="#F5A623" transparent opacity={0.8} />
+        {/* Glowing Orange Ring */}
+        <Cylinder args={[2.6, 2.6, 0.15, 64]} position={[0, 0.55, 0]}>
+          <meshBasicMaterial color="#FF6B00" transparent opacity={0.9} blending={THREE.AdditiveBlending} />
         </Cylinder>
-        <Cylinder args={[2, 2.5, 0.2, 64]} position={[0, 0.5, 0]}>
+        {/* Top platform */}
+        <Cylinder args={[2.4, 2.8, 0.3, 64]} position={[0, 0.75, 0]}>
           <meshStandardMaterial color="#05060A" metalness={0.9} roughness={0.1} />
         </Cylinder>
-        {/* Connection pillar */}
-        <Cylinder args={[0.5, 0.8, 1, 32]} position={[0, 1, 0]}>
-          <meshStandardMaterial color="#121621" metalness={0.8} roughness={0.2} />
+        {/* Inner glowing core pillar */}
+        <Cylinder args={[0.8, 0.8, 1.2, 32]} position={[0, 1.5, 0]}>
+          <meshBasicMaterial color="#4DA3FF" transparent opacity={0.5} blending={THREE.AdditiveBlending} />
         </Cylinder>
       </group>
 
-      {/* Central Inner Core */}
-      <Sphere args={[1.5, 64, 64]}>
+      {/* Glass Outer Shell */}
+      <Sphere ref={shell} args={[2.5, 64, 64]}>
         <meshPhysicalMaterial 
-          color="#05060A"
-          roughness={0.1}
-          metalness={0.9}
+          color="#A0C0FF"
+          transparent
+          opacity={0.1}
+          roughness={0.05}
+          metalness={0.2}
+          transmission={0.95}
+          ior={1.2}
+          thickness={1.5}
+          envMapIntensity={2.5}
           clearcoat={1}
           clearcoatRoughness={0.1}
         />
       </Sphere>
 
-      {/* Glass Outer Shell */}
-      <Sphere ref={shell} args={[2.2, 64, 64]}>
-        <meshPhysicalMaterial 
-          color="#4DA3FF"
-          transparent
-          opacity={0.15}
-          roughness={0}
-          metalness={0.1}
-          transmission={0.9}
-          ior={1.5}
-          thickness={0.5}
-          envMapIntensity={2}
-          clearcoat={1}
-        />
-      </Sphere>
-
-      {/* Atmospheric Inner Glow */}
-      <Sphere args={[2.1, 32, 32]}>
-        <meshBasicMaterial color="#8B5CF6" transparent opacity={0.08} blending={THREE.AdditiveBlending} />
-      </Sphere>
-
-      {/* Orbit Ring 1 */}
-      <group ref={outerRing1} rotation={[Math.PI / 3, Math.PI / 6, 0]}>
-        <mesh>
-          <torusGeometry args={[3, 0.01, 16, 100]} />
-          <meshBasicMaterial color="#4DA3FF" transparent opacity={0.4} />
-        </mesh>
-        <Sphere args={[0.1, 16, 16]} position={[3, 0, 0]}>
-          <meshBasicMaterial color="#4DA3FF" />
+      {/* Inner Glowing Lenses (Blue & Purple) */}
+      <group>
+        {/* Blue lens */}
+        <Sphere args={[1.6, 32, 32]} scale={[1, 1, 0.2]} position={[-0.5, 0.5, 0]} rotation={[0, Math.PI / 4, Math.PI / 6]}>
+          <meshBasicMaterial color="#4DA3FF" transparent opacity={0.4} blending={THREE.AdditiveBlending} />
+        </Sphere>
+        {/* Purple lens */}
+        <Sphere args={[1.4, 32, 32]} scale={[1, 1, 0.25]} position={[0.5, -0.3, 0]} rotation={[0, -Math.PI / 4, -Math.PI / 6]}>
+          <meshBasicMaterial color="#8B5CF6" transparent opacity={0.4} blending={THREE.AdditiveBlending} />
+        </Sphere>
+        {/* Pink lens */}
+        <Sphere args={[1.2, 32, 32]} scale={[1, 1, 0.2]} position={[0, 0, 0.8]} rotation={[Math.PI / 4, 0, 0]}>
+          <meshBasicMaterial color="#EC4899" transparent opacity={0.3} blending={THREE.AdditiveBlending} />
         </Sphere>
       </group>
 
-      {/* Orbit Ring 2 */}
+      {/* Orbit Ring 1 (Blue) */}
+      <group ref={outerRing1} rotation={[Math.PI / 3, Math.PI / 6, 0]}>
+        <mesh>
+          <torusGeometry args={[3.4, 0.015, 16, 100]} />
+          <meshBasicMaterial color="#4DA3FF" transparent opacity={0.6} blending={THREE.AdditiveBlending} />
+        </mesh>
+        <Sphere args={[0.08, 16, 16]} position={[3.4, 0, 0]}>
+          <meshBasicMaterial color="#FFFFFF" />
+        </Sphere>
+        <Sphere args={[0.2, 16, 16]} position={[3.4, 0, 0]}>
+          <meshBasicMaterial color="#4DA3FF" transparent opacity={0.6} blending={THREE.AdditiveBlending} />
+        </Sphere>
+      </group>
+
+      {/* Orbit Ring 2 (Purple) */}
       <group ref={outerRing2} rotation={[-Math.PI / 4, -Math.PI / 8, 0]}>
         <mesh>
-          <torusGeometry args={[2.8, 0.01, 16, 100]} />
-          <meshBasicMaterial color="#8B5CF6" transparent opacity={0.4} />
+          <torusGeometry args={[3.2, 0.015, 16, 100]} />
+          <meshBasicMaterial color="#8B5CF6" transparent opacity={0.6} blending={THREE.AdditiveBlending} />
         </mesh>
-        <Sphere args={[0.1, 16, 16]} position={[-2.8, 0, 0]}>
-          <meshBasicMaterial color="#8B5CF6" />
+        <Sphere args={[0.08, 16, 16]} position={[-3.2, 0, 0]}>
+          <meshBasicMaterial color="#FFFFFF" />
         </Sphere>
+        <Sphere args={[0.2, 16, 16]} position={[-3.2, 0, 0]}>
+          <meshBasicMaterial color="#8B5CF6" transparent opacity={0.6} blending={THREE.AdditiveBlending} />
+        </Sphere>
+      </group>
+      
+      {/* Orbit Ring 3 (Horizontal) */}
+      <group rotation={[Math.PI / 2.2, 0, 0]}>
+        <mesh>
+          <torusGeometry args={[3.6, 0.01, 16, 100]} />
+          <meshBasicMaterial color="#FFFFFF" transparent opacity={0.2} blending={THREE.AdditiveBlending} />
+        </mesh>
       </group>
       
       {/* 3D Typography */}
       <Text
-        position={[0, 0.4, 2.3]}
-        fontSize={0.12}
+        position={[0, 0.5, 2.6]}
+        fontSize={0.14}
         color="#FFFFFF"
         anchorX="center"
         anchorY="middle"
@@ -111,8 +129,8 @@ function CoreObject({ progress }: { progress: number }) {
         TEAM PROGRESS
       </Text>
       <Text
-        position={[0, 0, 2.3]}
-        fontSize={0.45}
+        position={[0, 0, 2.6]}
+        fontSize={0.6}
         color="#FFFFFF"
         anchorX="center"
         anchorY="middle"
@@ -121,8 +139,8 @@ function CoreObject({ progress }: { progress: number }) {
         {progress}%
       </Text>
       <Text
-        position={[0, -0.4, 2.3]}
-        fontSize={0.1}
+        position={[0, -0.5, 2.6]}
+        fontSize={0.12}
         color="#2ED47A"
         anchorX="center"
         anchorY="middle"

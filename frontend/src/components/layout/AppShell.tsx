@@ -39,7 +39,7 @@ export default function AppShell({ children }: AppShellProps) {
       </svg>
 
       {/* LEFT SIDEBAR REGION - Responsive fixed width */}
-      <div className="w-[105px] xl:w-[115px] h-full py-4 pl-4 pr-2 flex-shrink-0 relative z-[100]">
+      <div className="w-[110px] h-full py-4 pl-4 pr-2 flex-shrink-0 relative z-[100]">
         <aside 
           className="w-full h-full rounded-[34px] flex flex-col items-center py-8 relative"
           

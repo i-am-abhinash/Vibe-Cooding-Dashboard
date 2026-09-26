@@ -67,7 +67,7 @@ export default function TeamDashboard() {
           <div className="flex-1 relative w-full min-h-0 flex items-center justify-center mb-6 pointer-events-none">
             {/* 3D Scene */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-[clamp(430px,40vw,600px)] aspect-square pointer-events-auto">
+              <div className="w-[clamp(450px,36vw,600px)] aspect-square pointer-events-auto">
                 <TeamScene progress={progressPct} />
               </div>
             </div>
@@ -75,7 +75,7 @@ export default function TeamDashboard() {
             {/* === FOUR FLOATING PANELS AROUND CENTER === */}
             
             {/* 1. Team Members Panel */}
-            <div className="absolute top-[3%] lg:top-[5%] left-[2%] lg:left-[4%] w-[240px] h-[105px] pointer-events-auto glass-panel rounded-[20px] p-4 flex flex-col justify-center shadow-[0_0_20px_rgba(77,163,255,0.2)]">
+            <div className="absolute top-[8%] lg:top-[12%] left-[4%] lg:left-[8%] w-[230px] h-[100px] pointer-events-auto glass-panel rounded-[20px] p-4 flex flex-col justify-center shadow-[0_0_20px_rgba(77,163,255,0.2)]">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-[16px] bg-brand-blue/20 flex items-center justify-center text-brand-blue">
                   <Users size={24} />
@@ -100,7 +100,7 @@ export default function TeamDashboard() {
             </div>
 
             {/* 2. Total Projects Panel */}
-            <div className="absolute top-[3%] lg:top-[5%] right-[2%] lg:right-[4%] w-[190px] h-[100px] pointer-events-auto glass-panel rounded-[20px] p-4 flex flex-col justify-center shadow-[0_0_20px_rgba(139,92,246,0.2)]">
+            <div className="absolute top-[8%] lg:top-[12%] right-[4%] lg:right-[8%] w-[190px] h-[95px] pointer-events-auto glass-panel rounded-[20px] p-4 flex flex-col justify-center shadow-[0_0_20px_rgba(139,92,246,0.2)]">
                <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-[16px] bg-brand-gold/20 flex items-center justify-center text-brand-gold">
                   <FolderKanban size={24} />
@@ -156,10 +156,10 @@ export default function TeamDashboard() {
                 return (
                   <div key={m.id} className={`flex flex-col items-center gap-2 cursor-pointer group ${translateY}`}>
                     {/* Glowing Platform avatar */}
-                    <div className="relative w-[55px] h-[55px]">
+                    <div className="relative w-[64px] h-[64px]">
                       {/* Perspective base */}
-                      <div className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 w-[65px] h-[25px] rounded-[50%] border-2 border-brand-blue/30 bg-gradient-to-b from-brand-blue/20 to-transparent glow-blue" style={{ transform: 'rotateX(60deg)' }} />
-                      <div className={`absolute bottom-[-5px] left-1/2 -translate-x-1/2 w-[45px] h-[15px] rounded-[50%] border border-brand-blue bg-brand-blue shadow-[0_0_20px_var(--brand-blue)] opacity-50`} style={{ transform: 'rotateX(60deg)' }} />
+                      <div className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 w-[75px] h-[25px] rounded-[50%] border-2 border-brand-blue/30 bg-gradient-to-b from-brand-blue/20 to-transparent glow-blue" style={{ transform: 'rotateX(60deg)' }} />
+                      <div className={`absolute bottom-[-5px] left-1/2 -translate-x-1/2 w-[50px] h-[15px] rounded-[50%] border border-brand-blue bg-brand-blue shadow-[0_0_20px_var(--brand-blue)] opacity-50`} style={{ transform: 'rotateX(60deg)' }} />
                       
                       {/* Avatar Circle */}
                       <div className="absolute inset-0 rounded-full border-[2px] border-brand-blue/50 bg-brand-bg-1 overflow-hidden z-10 transition-transform group-hover:scale-110 group-hover:border-brand-blue group-hover:glow-blue">
@@ -176,10 +176,10 @@ export default function TeamDashboard() {
         </div>
 
         {/* RIGHT REGION */}
-        <div className="w-[360px] xl:w-[380px] flex-shrink-0 flex flex-col gap-5 h-full overflow-y-auto hide-scrollbar pb-6 pr-2">
+        <div className="w-[375px] flex-shrink-0 flex flex-col gap-[16px] h-full overflow-y-auto hide-scrollbar pb-6 pr-2">
           
           {/* Project Timeline Panel */}
-          <div className="glass-panel p-4 rounded-[20px] flex-shrink-0 h-[220px] flex flex-col">
+          <div className="glass-panel p-5 rounded-[20px] flex-shrink-0 h-[240px] flex flex-col">
             <div className="flex justify-between items-center mb-6">
               <h3 className="font-bold text-lg">Project Timeline</h3>
               <div className="flex items-center gap-1 text-[11px] font-bold bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-white/10">
@@ -215,7 +215,7 @@ export default function TeamDashboard() {
           </div>
 
           {/* Team Activity Panel */}
-          <div className="glass-panel p-4 rounded-[20px] flex-shrink-0 h-[220px] flex flex-col">
+          <div className="glass-panel p-5 rounded-[20px] flex-shrink-0 h-[240px] flex flex-col">
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center gap-3">
                 <h3 className="font-bold text-lg">Team Activity</h3>
@@ -250,7 +250,7 @@ export default function TeamDashboard() {
           </div>
 
           {/* Attention Zone Panel */}
-          <div className="glass-panel-danger p-4 rounded-[20px] flex-shrink-0 h-[260px] overflow-hidden relative">
+          <div className="glass-panel-danger p-5 rounded-[20px] flex-shrink-0 min-h-[260px] overflow-hidden relative">
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center gap-3 text-brand-red">
                 <div className="w-8 h-8 rounded-full bg-brand-red/20 flex items-center justify-center border border-brand-red/30 glow-red">
