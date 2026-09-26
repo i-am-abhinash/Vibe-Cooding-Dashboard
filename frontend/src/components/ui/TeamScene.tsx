@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Sphere, Preload, Text, Cylinder } from '@react-three/drei';
+import { Sphere, Preload, Text, Cylinder, Environment as DreiEnvironment } from '@react-three/drei';
 import * as THREE from 'three';
 
 function CoreObject({ progress }: { progress: number }) {
@@ -69,15 +69,15 @@ function CoreObject({ progress }: { progress: number }) {
       <group>
         {/* Blue lens */}
         <Sphere args={[1.6, 32, 32]} scale={[1, 1, 0.2]} position={[-0.5, 0.5, 0]} rotation={[0, Math.PI / 4, Math.PI / 6]}>
-          <meshBasicMaterial color="#4DA3FF" transparent opacity={0.4} blending={THREE.AdditiveBlending} />
+          <meshBasicMaterial color="#4DA3FF" transparent opacity={0.8} blending={THREE.AdditiveBlending} />
         </Sphere>
         {/* Purple lens */}
         <Sphere args={[1.4, 32, 32]} scale={[1, 1, 0.25]} position={[0.5, -0.3, 0]} rotation={[0, -Math.PI / 4, -Math.PI / 6]}>
-          <meshBasicMaterial color="#8B5CF6" transparent opacity={0.4} blending={THREE.AdditiveBlending} />
+          <meshBasicMaterial color="#8B5CF6" transparent opacity={0.8} blending={THREE.AdditiveBlending} />
         </Sphere>
         {/* Pink lens */}
         <Sphere args={[1.2, 32, 32]} scale={[1, 1, 0.2]} position={[0, 0, 0.8]} rotation={[Math.PI / 4, 0, 0]}>
-          <meshBasicMaterial color="#EC4899" transparent opacity={0.3} blending={THREE.AdditiveBlending} />
+          <meshBasicMaterial color="#EC4899" transparent opacity={0.6} blending={THREE.AdditiveBlending} />
         </Sphere>
       </group>
 
@@ -119,32 +119,38 @@ function CoreObject({ progress }: { progress: number }) {
       
       {/* 3D Typography */}
       <Text
-        position={[0, 0.5, 2.6]}
-        fontSize={0.14}
+        position={[0, 0.4, 0]}
+        fontSize={0.2}
         color="#FFFFFF"
         anchorX="center"
         anchorY="middle"
         font="https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff"
+        renderOrder={10}
+        material-depthTest={false}
       >
         TEAM PROGRESS
       </Text>
       <Text
-        position={[0, 0, 2.6]}
-        fontSize={0.6}
+        position={[0, -0.1, 0]}
+        fontSize={0.8}
         color="#FFFFFF"
         anchorX="center"
         anchorY="middle"
         font="https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff"
+        renderOrder={10}
+        material-depthTest={false}
       >
         {progress}%
       </Text>
       <Text
-        position={[0, -0.5, 2.6]}
-        fontSize={0.12}
+        position={[0, -0.6, 0]}
+        fontSize={0.15}
         color="#2ED47A"
         anchorX="center"
         anchorY="middle"
         font="https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff"
+        renderOrder={10}
+        material-depthTest={false}
       >
         +12% this week
       </Text>
@@ -152,7 +158,7 @@ function CoreObject({ progress }: { progress: number }) {
   );
 }
 
-function Environment() {
+function SceneEnvironment() {
   return (
     <>
       <ambientLight intensity={0.2} />
@@ -171,7 +177,8 @@ export function TeamScene({ progress }: { progress: number }) {
       style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}
       dpr={[1, 2]}
     >
-      <Environment />
+      <SceneEnvironment />
+      <DreiEnvironment preset="city" />
       <CoreObject progress={progress} />
       <Preload all />
     </Canvas>

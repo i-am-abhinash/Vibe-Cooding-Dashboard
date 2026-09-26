@@ -176,37 +176,60 @@ export default function TeamDashboard() {
         </div>
 
         {/* RIGHT REGION */}
-        <div className="w-[375px] flex-shrink-0 flex flex-col gap-[16px] h-full overflow-y-auto hide-scrollbar pb-6 pr-2">
+        <div className="w-[375px] flex-shrink-0 flex flex-col gap-[12px] h-full overflow-hidden pb-4 pr-2">
           
           {/* Project Timeline Panel */}
-          <div className="glass-panel p-5 rounded-[20px] flex-shrink-0 h-[240px] flex flex-col">
-            <div className="flex justify-between items-center mb-6">
+          <div className="glass-panel p-5 rounded-[20px] flex-shrink-0 h-[220px] flex flex-col relative overflow-hidden">
+            <div className="flex justify-between items-center mb-2 relative z-10">
               <h3 className="font-bold text-lg">Project Timeline</h3>
               <div className="flex items-center gap-1 text-[11px] font-bold bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-white/10">
                 This Week <ChevronDown size={14} className="text-brand-text-muted" />
               </div>
             </div>
             
-            <div className="flex-1 flex flex-col justify-between relative">
-              {/* Vertical dotted line */}
-              <div className="absolute left-[8px] top-2 bottom-2 w-[2px] border-l-2 border-white/10 border-dashed" />
+            {/* Background glowing wave */}
+            <div className="absolute bottom-0 left-0 right-0 h-[120px] opacity-60">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={[
+                  {name: '1', value: 20}, {name: '2', value: 60}, {name: '3', value: 30}, 
+                  {name: '4', value: 80}, {name: '5', value: 40}, {name: '6', value: 90}
+                ]} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="timeArea" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#4DA3FF" stopOpacity={0.6}/>
+                      <stop offset="100%" stopColor="#8B5CF6" stopOpacity={0.0}/>
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="value" stroke="#4DA3FF" strokeWidth={2} fillOpacity={1} fill="url(#timeArea)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="flex-1 flex flex-col justify-end pb-2 relative z-10">
+              {/* Horizontal line */}
+              <div className="absolute top-[40%] left-[10%] right-[10%] h-[1px] border-t border-white/20 border-dashed" />
               
-              <div className="flex justify-between relative z-10">
+              <div className="flex justify-between items-center relative w-full px-2">
                 {[
-                  {l:'Concept', c:'4/4', s:'done', col:'text-brand-text-muted', bg:'bg-brand-blue-1 shadow-[0_0_10px_var(--brand-blue-1)]'},
-                  {l:'Design', c:'4/4', s:'done', col:'text-brand-text-muted', bg:'bg-brand-violet-1 shadow-[0_0_10px_var(--brand-violet-1)]'},
+                  {l:'Concept', c:'4/4', s:'done', col:'text-brand-text-muted', bg:'bg-brand-blue shadow-[0_0_15px_var(--brand-blue)]'},
+                  {l:'Design', c:'4/4', s:'done', col:'text-brand-text-muted', bg:'bg-brand-violet-2 shadow-[0_0_15px_var(--brand-violet-2)]'},
                   {l:'Development', c:'3/4', s:'active', col:'text-white', bg:'bg-white glow-white', tag: true},
                   {l:'Submission', c:'2/4', s:'pending', col:'text-white', bg:'bg-white'},
-                  {l:'Review', c:'1/4', s:'none', col:'text-brand-text-muted', bg:'bg-brand-bg-1 border-2 border-brand-text-muted'}
+                  {l:'Review', c:'1/4', s:'none', col:'text-brand-text-muted', bg:'bg-transparent border-2 border-white/30'}
                 ].map((item, i) => (
-                  <div key={i} className="flex flex-col items-center gap-3 relative cursor-pointer group">
-                    {item.tag && <div className="absolute -top-10 h-10 w-[1px] bg-white border-l border-dashed" />}
-                    <div className={`w-4 h-4 rounded-full flex items-center justify-center ${item.bg} shadow-[0_0_10px_currentColor] ${item.col}`}>
-                      {item.s === 'done' && <svg className="w-2 h-2 text-brand-bg-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>}
+                  <div key={i} className="flex flex-col items-center gap-2 relative cursor-pointer group">
+                    {item.tag && (
+                      <div className="absolute -top-[45px] bg-brand-blue/20 border border-brand-blue/50 text-brand-blue text-[10px] font-bold px-2 py-1 rounded-md">
+                        Today
+                        <div className="absolute -bottom-[5px] left-1/2 -translate-x-1/2 w-[1px] h-[5px] bg-brand-blue/50" />
+                      </div>
+                    )}
+                    <div className={`w-[14px] h-[14px] rounded-full flex items-center justify-center ${item.bg} z-10 transition-transform group-hover:scale-125`}>
+                      {item.s === 'done' && <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="4"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"></path></svg>}
                     </div>
-                    <div className="flex flex-col items-center gap-1">
+                    <div className="flex flex-col items-center mt-1">
                       <div className={`text-[11px] font-bold ${item.col}`}>{item.l}</div>
-                      <div className="text-[10px] font-bold text-brand-text-muted">{item.c}</div>
+                      <div className="text-[9px] font-bold text-brand-text-muted">{item.c}</div>
                     </div>
                   </div>
                 ))}
@@ -215,7 +238,7 @@ export default function TeamDashboard() {
           </div>
 
           {/* Team Activity Panel */}
-          <div className="glass-panel p-5 rounded-[20px] flex-shrink-0 h-[240px] flex flex-col">
+          <div className="glass-panel p-5 rounded-[20px] flex-shrink-0 h-[210px] flex flex-col">
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center gap-3">
                 <h3 className="font-bold text-lg">Team Activity</h3>
@@ -250,7 +273,7 @@ export default function TeamDashboard() {
           </div>
 
           {/* Attention Zone Panel */}
-          <div className="glass-panel-danger p-5 rounded-[20px] flex-shrink-0 min-h-[260px] overflow-hidden relative">
+          <div className="glass-panel-danger p-5 rounded-[20px] flex-1 overflow-hidden relative">
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center gap-3 text-brand-red">
                 <div className="w-8 h-8 rounded-full bg-brand-red/20 flex items-center justify-center border border-brand-red/30 glow-red">
