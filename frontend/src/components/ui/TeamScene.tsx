@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Sphere, Preload, Text, Cylinder, Environment as DreiEnvironment } from '@react-three/drei';
+import { Sphere, Preload, Text, Environment as DreiEnvironment } from '@react-three/drei';
 import * as THREE from 'three';
 
 function CoreObject({ progress }: { progress: number }) {
@@ -9,151 +9,144 @@ function CoreObject({ progress }: { progress: number }) {
     const outerRing1 = useRef<THREE.Mesh>(null);
   const outerRing2 = useRef<THREE.Mesh>(null);
 
-  useFrame((state) => {
-    if (!group.current) return;
+  const lenses = useRef<THREE.Group>(null);
+  useFrame((state, delta) => {
+    // Interactive slight tilt for the whole scene
+    if (group.current) {
+      const targetX = (state.pointer.x * Math.PI) / 15;
+      const targetY = (state.pointer.y * Math.PI) / 15;
+      group.current.rotation.y += (targetX - group.current.rotation.y) * 0.05;
+      group.current.rotation.x += (-targetY - group.current.rotation.x) * 0.05;
+    }
     
-    const targetX = (state.pointer.x * Math.PI) / 10;
-    const targetY = (state.pointer.y * Math.PI) / 10;
-    
-    group.current.rotation.y += (targetX - group.current.rotation.y) * 0.05;
-    group.current.rotation.x += (-targetY - group.current.rotation.x) * 0.05;
-    
-        if (outerRing1.current) outerRing1.current.rotation.z += 0.002;
-    if (outerRing2.current) outerRing2.current.rotation.z -= 0.003;
+    // Auto-revolve the outer shell and inner lenses
+    if (shell.current) shell.current.rotation.y += delta * 0.2;
+    if (lenses.current) {
+      lenses.current.rotation.y += delta * 0.3;
+      lenses.current.rotation.x += delta * 0.1;
+    }
+
+    // Auto-revolve the orbit rings
+    if (outerRing1.current) outerRing1.current.rotation.z += delta * 0.15;
+    if (outerRing2.current) outerRing2.current.rotation.z -= delta * 0.2;
   });
 
-    return (
-    <group ref={group} position={[0, 0.5, 0]}>
-      {/* Platform / Pedestal */}
-      <group position={[0, -3.5, 0]}>
-        {/* Base plate */}
-        <Cylinder args={[3.2, 3.5, 0.4, 64]} position={[0, 0, 0]}>
-          <meshStandardMaterial color="#0A0C12" metalness={0.9} roughness={0.3} />
-        </Cylinder>
-        {/* Mid step */}
-        <Cylinder args={[2.8, 3.2, 0.3, 64]} position={[0, 0.35, 0]}>
-          <meshStandardMaterial color="#151A28" metalness={0.8} roughness={0.2} />
-        </Cylinder>
-        {/* Glowing Orange Ring */}
-        <Cylinder args={[2.6, 2.6, 0.15, 64]} position={[0, 0.55, 0]}>
-          <meshBasicMaterial color="#FF6B00" transparent opacity={0.9} blending={THREE.AdditiveBlending} />
-        </Cylinder>
-        {/* Top platform */}
-        <Cylinder args={[2.4, 2.8, 0.3, 64]} position={[0, 0.75, 0]}>
-          <meshStandardMaterial color="#05060A" metalness={0.9} roughness={0.1} />
-        </Cylinder>
-        {/* Inner glowing core pillar */}
-        <Cylinder args={[0.8, 0.8, 1.2, 32]} position={[0, 1.5, 0]}>
-          <meshBasicMaterial color="#4DA3FF" transparent opacity={0.5} blending={THREE.AdditiveBlending} />
-        </Cylinder>
-      </group>
-
-      {/* Glass Outer Shell */}
+      return (
+    <group ref={group} position={[0, 0, 0]}>
+      {/* Outer Shell (Simulated Glass without relying on external HDRI) */}
       <Sphere ref={shell} args={[2.5, 64, 64]}>
         <meshPhysicalMaterial 
           color="#A0C0FF"
           transparent
-          opacity={0.1}
-          roughness={0.05}
-          metalness={0.2}
-          transmission={0.95}
-          ior={1.2}
-          thickness={1.5}
-          envMapIntensity={2.5}
-          clearcoat={1}
-          clearcoatRoughness={0.1}
+          opacity={0.4}
+          roughness={0.0}
+          metalness={0.9}
+          transmission={0.6}
+          ior={1.5}
+          thickness={2.5}
+          envMapIntensity={3}
         />
       </Sphere>
 
-      {/* Inner Glowing Lenses (Blue & Purple) */}
-      <group>
-        {/* Blue lens */}
-        <Sphere args={[1.6, 32, 32]} scale={[1, 1, 0.2]} position={[-0.5, 0.5, 0]} rotation={[0, Math.PI / 4, Math.PI / 6]}>
-          <meshBasicMaterial color="#4DA3FF" transparent opacity={0.8} blending={THREE.AdditiveBlending} />
+      {/* Edge Rim Glow for Glass */}
+      <Sphere args={[2.55, 64, 64]}>
+        <meshBasicMaterial color="#4DA3FF" transparent opacity={0.3} blending={THREE.AdditiveBlending} side={THREE.BackSide} />
+      </Sphere>
+
+      {/* Inner Glowing Lenses (Blue, Purple, Pink) */}
+      <group ref={lenses}>
+        {/* Large Blue lens */}
+        <Sphere args={[1.8, 32, 32]} scale={[1, 1, 0.15]} position={[-0.4, 0.4, 0]} rotation={[0, Math.PI / 4, Math.PI / 6]}>
+          <meshBasicMaterial color="#0088FF" transparent opacity={0.6} blending={THREE.AdditiveBlending} />
         </Sphere>
-        {/* Purple lens */}
-        <Sphere args={[1.4, 32, 32]} scale={[1, 1, 0.25]} position={[0.5, -0.3, 0]} rotation={[0, -Math.PI / 4, -Math.PI / 6]}>
-          <meshBasicMaterial color="#8B5CF6" transparent opacity={0.8} blending={THREE.AdditiveBlending} />
+        {/* Large Purple lens */}
+        <Sphere args={[1.6, 32, 32]} scale={[1, 1, 0.2]} position={[0.4, -0.4, 0]} rotation={[0, -Math.PI / 4, -Math.PI / 6]}>
+          <meshBasicMaterial color="#9D4EDD" transparent opacity={0.6} blending={THREE.AdditiveBlending} />
         </Sphere>
-        {/* Pink lens */}
-        <Sphere args={[1.2, 32, 32]} scale={[1, 1, 0.2]} position={[0, 0, 0.8]} rotation={[Math.PI / 4, 0, 0]}>
-          <meshBasicMaterial color="#EC4899" transparent opacity={0.6} blending={THREE.AdditiveBlending} />
+        {/* Inner intense core glow */}
+        <Sphere args={[1.0, 32, 32]} scale={[1, 1, 1]}>
+          <meshBasicMaterial color="#FFFFFF" transparent opacity={0.05} blending={THREE.AdditiveBlending} />
         </Sphere>
       </group>
 
-      {/* Orbit Ring 1 (Blue) */}
-      <group ref={outerRing1} rotation={[Math.PI / 3, Math.PI / 6, 0]}>
+      {/* Orbit Ring 1 (Cyan/Blue) */}
+      <group ref={outerRing1} rotation={[Math.PI / 2.5, Math.PI / 6, 0]}>
         <mesh>
-          <torusGeometry args={[3.4, 0.015, 16, 100]} />
-          <meshBasicMaterial color="#4DA3FF" transparent opacity={0.6} blending={THREE.AdditiveBlending} />
+          <torusGeometry args={[3.8, 0.015, 16, 100]} />
+          <meshBasicMaterial color="#00E5FF" transparent opacity={0.6} blending={THREE.AdditiveBlending} />
         </mesh>
-        <Sphere args={[0.08, 16, 16]} position={[3.4, 0, 0]}>
+        <Sphere args={[0.08, 16, 16]} position={[3.8, 0, 0]}>
           <meshBasicMaterial color="#FFFFFF" />
         </Sphere>
-        <Sphere args={[0.2, 16, 16]} position={[3.4, 0, 0]}>
-          <meshBasicMaterial color="#4DA3FF" transparent opacity={0.6} blending={THREE.AdditiveBlending} />
+        <Sphere args={[0.25, 16, 16]} position={[3.8, 0, 0]}>
+          <meshBasicMaterial color="#00E5FF" transparent opacity={0.5} blending={THREE.AdditiveBlending} />
         </Sphere>
       </group>
 
       {/* Orbit Ring 2 (Purple) */}
-      <group ref={outerRing2} rotation={[-Math.PI / 4, -Math.PI / 8, 0]}>
+      <group ref={outerRing2} rotation={[-Math.PI / 3, -Math.PI / 8, 0]}>
         <mesh>
-          <torusGeometry args={[3.2, 0.015, 16, 100]} />
-          <meshBasicMaterial color="#8B5CF6" transparent opacity={0.6} blending={THREE.AdditiveBlending} />
+          <torusGeometry args={[3.5, 0.015, 16, 100]} />
+          <meshBasicMaterial color="#B026FF" transparent opacity={0.6} blending={THREE.AdditiveBlending} />
         </mesh>
-        <Sphere args={[0.08, 16, 16]} position={[-3.2, 0, 0]}>
+        <Sphere args={[0.08, 16, 16]} position={[-3.5, 0, 0]}>
           <meshBasicMaterial color="#FFFFFF" />
         </Sphere>
-        <Sphere args={[0.2, 16, 16]} position={[-3.2, 0, 0]}>
-          <meshBasicMaterial color="#8B5CF6" transparent opacity={0.6} blending={THREE.AdditiveBlending} />
+        <Sphere args={[0.25, 16, 16]} position={[-3.5, 0, 0]}>
+          <meshBasicMaterial color="#B026FF" transparent opacity={0.5} blending={THREE.AdditiveBlending} />
         </Sphere>
       </group>
       
-      {/* Orbit Ring 3 (Horizontal) */}
-      <group rotation={[Math.PI / 2.2, 0, 0]}>
+      {/* Horizontal Orbit Ring */}
+      <group rotation={[Math.PI / 2.1, 0, 0]}>
         <mesh>
-          <torusGeometry args={[3.6, 0.01, 16, 100]} />
-          <meshBasicMaterial color="#FFFFFF" transparent opacity={0.2} blending={THREE.AdditiveBlending} />
+          <torusGeometry args={[4.2, 0.01, 16, 100]} />
+          <meshBasicMaterial color="#FFFFFF" transparent opacity={0.15} blending={THREE.AdditiveBlending} />
         </mesh>
+        <Sphere args={[0.05, 16, 16]} position={[4.2, 0, 0]}>
+          <meshBasicMaterial color="#FFFFFF" transparent opacity={0.8} />
+        </Sphere>
       </group>
       
       {/* 3D Typography */}
-      <Text
-        position={[0, 0.4, 0]}
-        fontSize={0.2}
-        color="#FFFFFF"
-        anchorX="center"
-        anchorY="middle"
-        font="https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff"
-        renderOrder={10}
-        material-depthTest={false}
-      >
-        TEAM PROGRESS
-      </Text>
-      <Text
-        position={[0, -0.1, 0]}
-        fontSize={0.8}
-        color="#FFFFFF"
-        anchorX="center"
-        anchorY="middle"
-        font="https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff"
-        renderOrder={10}
-        material-depthTest={false}
-      >
-        {progress}%
-      </Text>
-      <Text
-        position={[0, -0.6, 0]}
-        fontSize={0.15}
-        color="#2ED47A"
-        anchorX="center"
-        anchorY="middle"
-        font="https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff"
-        renderOrder={10}
-        material-depthTest={false}
-      >
-        +12% this week
-      </Text>
+      <group position={[0, 0, 0]}>
+        <Text
+          position={[0, 0.4, 0]}
+          fontSize={0.2}
+          color="#FFFFFF"
+          anchorX="center"
+          anchorY="middle"
+          font="https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff"
+          renderOrder={10}
+          material-depthTest={false}
+        >
+          TEAM PROGRESS
+        </Text>
+        <Text
+          position={[0, -0.1, 0]}
+          fontSize={0.8}
+          color="#FFFFFF"
+          anchorX="center"
+          anchorY="middle"
+          font="https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff"
+          renderOrder={10}
+          material-depthTest={false}
+        >
+          {progress}%
+        </Text>
+        <Text
+          position={[0, -0.6, 0]}
+          fontSize={0.15}
+          color="#2ED47A"
+          anchorX="center"
+          anchorY="middle"
+          font="https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff"
+          renderOrder={10}
+          material-depthTest={false}
+        >
+          +12% this week
+        </Text>
+      </group>
     </group>
   );
 }
@@ -173,7 +166,7 @@ function SceneEnvironment() {
 export function TeamScene({ progress }: { progress: number }) {
   return (
     <Canvas
-      camera={{ position: [0, 0.3, 6], fov: 45 }}
+      camera={{ position: [0, 0, 9], fov: 45 }}
       style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}
       dpr={[1, 2]}
     >

@@ -1,5 +1,14 @@
 import { Globe } from 'lucide-react';
 import { useEffect, useState } from 'react';
+const avatarUrls = [
+  "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80",
+  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80",
+  "https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=150&q=80",
+  "https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=150&q=80",
+  "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=150&q=80",
+  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80",
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80"
+];
 import { ChevronRight, ChevronDown, Users, FolderKanban, AlertTriangle, FileCheck, CircleUserRound } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import api from '../api';
@@ -66,81 +75,87 @@ export default function TeamDashboard() {
           {/* === CENTRAL 3D SCENE === */}
           <div className="flex-1 relative w-full min-h-0 flex items-center justify-center mb-6 pointer-events-none">
             {/* 3D Scene */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-[clamp(450px,36vw,600px)] aspect-square pointer-events-auto">
+            <div className="absolute inset-0 flex items-center justify-center pb-[120px]">
+                <div className="w-[clamp(650px,75vw,1000px)] aspect-square pointer-events-auto">
                 <TeamScene progress={progressPct} />
               </div>
             </div>
 
             {/* === FOUR FLOATING PANELS AROUND CENTER === */}
-            
-            {/* 1. Team Members Panel */}
-            <div className="absolute top-[8%] lg:top-[12%] left-[4%] lg:left-[8%] w-[230px] h-[100px] pointer-events-auto glass-panel rounded-[20px] p-4 flex flex-col justify-center shadow-[0_0_20px_rgba(77,163,255,0.2)]">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-[16px] bg-brand-blue/20 flex items-center justify-center text-brand-blue">
-                  <Users size={24} />
-                </div>
-                <div>
-                  <div className="text-2xl font-bold leading-none">{members.length}</div>
-                  <div className="text-[11px] font-bold text-white tracking-wide">Team Members</div>
-                </div>
-              </div>
-              <div className="absolute bottom-[-16px] left-[20px] glass-panel rounded-full p-1 flex items-center border border-white/20">
-                <div className="flex -space-x-2">
-                  {members.slice(0,4).map((m:any) => (
-                    <div key={m.id} className="w-6 h-6 rounded-full border border-[#121621] bg-brand-bg-2 overflow-hidden">
-                      <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${m.name}`} alt="avatar" />
+            <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-4 lg:p-8 z-10 pb-[280px]">
+              {/* Top Row Cards */}
+              <div className="flex justify-between w-full px-4 lg:px-12">
+                {/* 1. Team Members Panel */}
+                <div className="w-[210px] h-[90px] pointer-events-auto glass-panel rounded-[20px] p-4 flex flex-col justify-center shadow-[0_0_20px_rgba(77,163,255,0.2)]">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-[16px] bg-brand-blue/20 flex items-center justify-center text-brand-blue">
+                      <Users size={20} />
                     </div>
-                  ))}
+                    <div>
+                      <div className="text-2xl font-bold leading-none text-white">{members.length}</div>
+                      <div className="text-[11px] font-bold text-white tracking-wide">Team Members</div>
+                    </div>
+                  </div>
+                  <div className="absolute bottom-[-16px] left-[20px] glass-panel rounded-full p-1 flex items-center border border-white/20">
+                    <div className="flex space-x-2">
+                      {members.slice(0,4).map((m:any, i:number) => (
+                        <div key={m.id} className="w-6 h-6 rounded-full border border-[#121621] bg-brand-bg-2 overflow-hidden">
+                          <img src={avatarUrls[i % avatarUrls.length]} alt="avatar" className="w-full h-full object-cover" />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="w-6 h-6 ml-2 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 cursor-pointer">
+                      <ChevronRight size={12} className="text-white" />
+                    </div>
+                  </div>
                 </div>
-                <div className="w-6 h-6 ml-2 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 cursor-pointer">
-                  <ChevronRight size={12} />
+
+                {/* 2. Total Projects Panel */}
+                <div className="w-[180px] h-[90px] pointer-events-auto glass-panel rounded-[20px] p-4 flex flex-col justify-center shadow-[0_0_20px_rgba(139,92,246,0.2)] mt-8">
+                   <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-[16px] bg-brand-gold/20 flex items-center justify-center text-brand-gold">
+                      <FolderKanban size={20} />
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold leading-none text-white">{totalProjects}</div>
+                      <div className="text-[11px] font-bold text-white tracking-wide">Total Projects</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Row Cards */}
+              <div className="flex justify-between w-full px-4 lg:px-12">
+                {/* 3. Attendance Panel */}
+                <div className="w-[180px] h-[90px] pointer-events-auto glass-panel rounded-[20px] p-4 flex flex-col justify-center shadow-[0_0_20px_rgba(77,163,255,0.2)] border border-brand-blue/30 mb-8">
+                   <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full border-[3px] border-brand-blue/30 flex items-center justify-center relative">
+                       <div className="w-8 h-8 rounded-full border-[3px] border-brand-blue border-r-transparent border-t-transparent" style={{ transform: 'rotate(45deg)' }} />
+                       <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white">98%</div>
+                    </div>
+                    <div>
+                      <div className="text-xl font-bold leading-none text-white">Attendance</div>
+                      <div className="text-[10px] text-brand-text-muted mt-1">+2% from last week</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Group Project Panel */}
+                <div className="w-[180px] h-[90px] pointer-events-auto glass-panel rounded-[20px] p-4 flex flex-col justify-center shadow-[0_0_20px_rgba(139,92,246,0.3)] border border-brand-violet/40">
+                   <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-[16px] bg-gradient-to-br from-white to-white/20 flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.5)]">
+                      <Globe size={20} className="text-brand-bg-1" />
+                    </div>
+                    <div>
+                      <div className="text-xl font-bold leading-none text-brand-violet-2">Group Project</div>
+                      <div className="text-[10px] font-bold text-white mt-1 uppercase tracking-wider">Phase 4 Active</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* 2. Total Projects Panel */}
-            <div className="absolute top-[8%] lg:top-[12%] right-[4%] lg:right-[8%] w-[190px] h-[95px] pointer-events-auto glass-panel rounded-[20px] p-4 flex flex-col justify-center shadow-[0_0_20px_rgba(139,92,246,0.2)]">
-               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-[16px] bg-brand-gold/20 flex items-center justify-center text-brand-gold">
-                  <FolderKanban size={24} />
-                </div>
-                <div>
-                  <div className="text-2xl font-bold leading-none">{totalProjects}</div>
-                  <div className="text-[11px] font-bold text-white tracking-wide">Total Projects</div>
-                </div>
-              </div>
-            </div>
-
-            {/* 3. Attendance Panel */}
-            <div className="absolute bottom-[3%] lg:bottom-[8%] left-[5%] lg:left-[8%] w-[190px] h-[100px] pointer-events-auto glass-panel rounded-[20px] p-4 flex flex-col justify-center shadow-[0_0_20px_rgba(77,163,255,0.2)]">
-               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full border-[3px] border-brand-blue/30 flex items-center justify-center relative">
-                   <div className="w-8 h-8 rounded-full border-[3px] border-brand-blue border-r-transparent border-t-transparent" style={{ transform: 'rotate(45deg)' }} />
-                   <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold">98%</div>
-                </div>
-                <div>
-                  <div className="text-xl font-bold leading-none">Attendance</div>
-                  <div className="text-[10px] text-brand-text-muted mt-1">+2% from last week</div>
-                </div>
-              </div>
-            </div>
-
-            {/* 4. Group Project Panel */}
-            <div className="absolute bottom-[3%] lg:bottom-[8%] right-[5%] lg:right-[8%] w-[190px] h-[100px] pointer-events-auto glass-panel rounded-[20px] p-4 flex flex-col justify-center shadow-[0_0_20px_rgba(139,92,246,0.3)]">
-               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-[16px] bg-gradient-to-br from-white to-white/20 flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.5)]">
-                  <Globe size={24} className="text-brand-bg-1" />
-                </div>
-                <div>
-                  <div className="text-xl font-bold leading-none text-brand-violet-2">Group Project</div>
-                  <div className="text-[10px] font-bold text-white mt-1 uppercase tracking-wider">Phase 4 Active</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* === BOTTOM: TEAM MEMBERS STRIP === */}
+            {/* === BOTTOM: TEAM MEMBERS STRIP === */}
           <div className="flex-shrink-0 w-full h-[140px] flex flex-col justify-end mt-auto pointer-events-auto mb-2 px-2">
             <div className="flex items-center gap-2 mb-4 cursor-pointer hover:opacity-80">
               <h3 className="text-xl font-bold text-white">Team Members</h3>
@@ -159,11 +174,11 @@ export default function TeamDashboard() {
                     <div className="relative w-[64px] h-[64px]">
                       {/* Perspective base */}
                       <div className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 w-[75px] h-[25px] rounded-[50%] border-2 border-brand-blue/30 bg-gradient-to-b from-brand-blue/20 to-transparent glow-blue" style={{ transform: 'rotateX(60deg)' }} />
-                      <div className={`absolute bottom-[-5px] left-1/2 -translate-x-1/2 w-[50px] h-[15px] rounded-[50%] border border-brand-blue bg-brand-blue shadow-[0_0_20px_var(--brand-blue)] opacity-50`} style={{ transform: 'rotateX(60deg)' }} />
+                      <div className="absolute bottom-[-5px] left-1/2 -translate-x-1/2 w-[50px] h-[15px] rounded-[50%] border-2 border-brand-blue bg-brand-blue/30 shadow-[0_0_20px_var(--brand-blue)] opacity-80" style={{ transform: 'rotateX(60deg)' }} />
                       
                       {/* Avatar Circle */}
-                      <div className="absolute inset-0 rounded-full border-[2px] border-brand-blue/50 bg-brand-bg-1 overflow-hidden z-10 transition-transform group-hover:scale-110 group-hover:border-brand-blue group-hover:glow-blue">
-                        <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${m.name}`} alt={m.name} className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 rounded-full border-[2px] border-brand-blue/50 bg-brand-bg-1 overflow-hidden z-10 transition-transform group-hover:scale-110 group-hover:border-brand-blue group-hover:glow-blue shadow-[0_0_15px_rgba(77,163,255,0.4)]">
+                        <img src={avatarUrls[i % avatarUrls.length]} alt={m.name} className="w-full h-full object-cover" />
                       </div>
                     </div>
                     <div className="text-[12px] font-bold text-white mt-1">{m.name.split(' ')[0]}</div>
@@ -175,7 +190,9 @@ export default function TeamDashboard() {
           </div>
         </div>
 
-        {/* RIGHT REGION */}
+                  </div>
+
+          {/* RIGHT REGION */}
         <div className="w-[375px] flex-shrink-0 flex flex-col gap-[12px] h-full overflow-hidden pb-4 pr-2">
           
           {/* Project Timeline Panel */}
