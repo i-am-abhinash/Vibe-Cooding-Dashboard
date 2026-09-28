@@ -5,7 +5,19 @@ import { db } from './firebase';
 import { authenticate, requireRole, AuthRequest } from './auth';
 import { buildTeamDashboard, buildMemberDashboard } from './services/dashboardAggregator';
 
+import { membersRouter } from './routes/members';
+import { projectsRouter } from './routes/projects';
+import { groupRouter } from './routes/group';
+import { reviewsRouter } from './routes/reviews';
+
+
 const router = express.Router();
+
+router.use('/members', membersRouter);
+router.use('/projects', projectsRouter);
+router.use('/group', groupRouter);
+router.use('/reviews', reviewsRouter);
+
 
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretjwtkey';
