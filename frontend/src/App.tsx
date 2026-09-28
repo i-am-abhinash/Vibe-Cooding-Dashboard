@@ -24,7 +24,9 @@ function App() {
           <Route path="/team" element={<PrivateRoute allowedRoles={['team_lead', 'co_lead']}><TeamDashboard /></PrivateRoute>} />
           <Route path="/team/member/:id" element={<PrivateRoute allowedRoles={['team_lead', 'co_lead']}><MemberDetail /></PrivateRoute>} />
           <Route path="/member" element={<PrivateRoute allowedRoles={['member']}><MemberDashboard /></PrivateRoute>} />
-          <Route path="*" element={<Navigate to="/login" />} />
+          <Route path="/team/*" element={<PrivateRoute allowedRoles={['team_lead', 'co_lead', 'admin']}><TeamDashboard /></PrivateRoute>} />
+          <Route path="/member/*" element={<PrivateRoute allowedRoles={['member']}><MemberDashboard /></PrivateRoute>} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </div>
     </Router>
