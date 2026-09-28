@@ -43,7 +43,10 @@ export default function MemberDashboard() {
 
   if (!data) return <AppShell><div className="animate-pulse h-64 material-glass rounded-3xl" /></AppShell>;
 
-  const { member, cycle } = data;
+  const { cycle, dashboard } = data;
+   const member = dashboard?.profile || {};
+   member.projects = dashboard?.projects || [];
+   
   const projects = member.projects || [];
   const slots = [0,1,2,3].map(i => projects[i] || null);
 

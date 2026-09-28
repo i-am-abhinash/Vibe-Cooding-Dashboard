@@ -34,15 +34,9 @@ export default function TeamDashboard() {
 
   if (!data) return <AppShell><div className="w-full h-full" /></AppShell>;
 
-  const { members, pendingReviews } = data;
-  let totalProjects = members.length * 4;
-  let completedProjects = 0;
-  
-  members.forEach((m: any) => {
-    completedProjects += m.projects.filter((p:any) => p.status === 'completed' || p.status === 'verified').length;
-  });
-
-  const progressPct = totalProjects > 0 ? Math.round((completedProjects / totalProjects) * 100) : 0;
+  const { dashboard } = data;
+  const members = dashboard?.membersDetails || [];
+  const progressPct = dashboard?.groupProjectProgress || 0;
 
   return (
     <AppShell>
@@ -92,7 +86,7 @@ export default function TeamDashboard() {
                       <Users size={20} />
                     </div>
                     <div>
-                      <div className="text-2xl font-bold leading-none text-white">{members.length}</div>
+                      <div className="text-2xl font-bold leading-none text-white">{dashboard?.teamMemberCount || 0}</div>
                       <div className="text-[11px] font-bold text-white tracking-wide">Team Members</div>
                     </div>
                   </div>
@@ -117,7 +111,7 @@ export default function TeamDashboard() {
                       <FolderKanban size={20} />
                     </div>
                     <div>
-                      <div className="text-2xl font-bold leading-none text-white">{totalProjects}</div>
+                      <div className="text-2xl font-bold leading-none text-white">{dashboard?.individualProjectsExpected || 0}</div>
                       <div className="text-[11px] font-bold text-white tracking-wide">Total Projects</div>
                     </div>
                   </div>
@@ -131,7 +125,7 @@ export default function TeamDashboard() {
                    <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full border-[3px] border-brand-blue/30 flex items-center justify-center relative">
                        <div className="w-8 h-8 rounded-full border-[3px] border-brand-blue border-r-transparent border-t-transparent" style={{ transform: 'rotate(45deg)' }} />
-                       <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white">98%</div>
+                       <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white">{dashboard?.teamAttendance || 0}%</div>
                     </div>
                     <div>
                       <div className="text-xl font-bold leading-none text-white">Attendance</div>
@@ -148,7 +142,7 @@ export default function TeamDashboard() {
                     </div>
                     <div>
                       <div className="text-xl font-bold leading-none text-brand-violet-2">Group Project</div>
-                      <div className="text-[10px] font-bold text-white mt-1 uppercase tracking-wider">Phase 4 Active</div>
+                      <div className="text-[10px] font-bold text-white mt-1 uppercase tracking-wider">Phase: {dashboard?.membersDetails[0]?.groupProject?.currentPhase || "DEVELOPMENT"}</div>
                     </div>
                   </div>
                 </div>
@@ -164,8 +158,7 @@ export default function TeamDashboard() {
             
             <div className="flex justify-between items-end w-full pb-4 px-4">
               {members.slice(0, 7).map((m:any, i:number) => {
-                const verified = m.projects.filter((p:any) => p.status === 'completed' || p.status === 'verified').length;
-                const pct = Math.round((verified / 4) * 100) || 50;
+                const pct = m.growth?.individualProjectProgress || 0;
                 // Add slight vertical staggering like the reference
                 const translateY = i % 2 === 0 ? 'translate-y-0' : 'translate-y-[-10px]';
                 return (
@@ -298,7 +291,7 @@ export default function TeamDashboard() {
                 </div>
                 <div>
                   <h3 className="font-bold text-lg leading-tight">Attention Zone</h3>
-                  <div className="text-[10px] font-bold text-brand-text-muted">{pendingReviews} items need your attention</div>
+                  <div className="text-[10px] font-bold text-brand-text-muted">{dashboard?.openModificationCount || 0} items need your attention</div>
                 </div>
               </div>
               <div className="text-[10px] font-bold text-white hover:text-brand-red cursor-pointer flex items-center gap-1">View All <ChevronRight size={12}/></div>
