@@ -10,7 +10,7 @@ export const transitionProjectState = async (projectId: string, newState: string
   const validTransitions = getValidTransitions(project.currentStatus);
   
   if (!validTransitions.includes(newState)) {
-    throw new Error(\`Invalid transition from \${project.currentStatus} to \${newState}\`);
+    throw new Error(`Invalid transition from ${project.currentStatus} to ${newState}`);
   }
 
   const updates: any = { currentStatus: newState, updatedAt: new Date().toISOString() };
@@ -24,7 +24,7 @@ export const transitionProjectState = async (projectId: string, newState: string
     projectId,
     memberId: project.memberId,
     actorId: userId,
-    message: \`Project moved to \${newState}\`,
+    message: `Project moved to ${newState}`,
     metadata: { oldState: project.currentStatus, newState, comment },
     timestamp: new Date().toISOString()
   });

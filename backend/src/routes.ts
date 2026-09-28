@@ -1,3 +1,5 @@
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import express from 'express';
 import { db } from './firebase';
 import { authenticate, requireRole, AuthRequest } from './auth';
@@ -5,8 +7,6 @@ import { buildTeamDashboard, buildMemberDashboard } from './services/dashboardAg
 
 const router = express.Router();
 
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretjwtkey';
 
