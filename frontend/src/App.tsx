@@ -27,11 +27,11 @@ function PrivateRoute({ children, allowedRoles }: { children: React.ReactNode, a
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-gray-100 text-gray-900">
+      <div className="min-h-screen bg-cinematic-bg text-cinematic-text">
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/team" element={<PrivateRoute allowedRoles={['team_lead', 'co_lead']}><TeamDashboard /></PrivateRoute>} />
-          <Route path="/team/member/:id" element={<PrivateRoute allowedRoles={['team_lead', 'co_lead']}><MemberDetail /></PrivateRoute>} />
+          <Route path="/team" element={<PrivateRoute allowedRoles={['team_lead', 'co_lead', 'admin']}><TeamDashboard /></PrivateRoute>} />
+          <Route path="/team/member/:id" element={<PrivateRoute allowedRoles={['team_lead', 'co_lead', 'admin']}><MemberDetail /></PrivateRoute>} />
           <Route path="/member" element={<PrivateRoute allowedRoles={['member']}><MemberDashboard /></PrivateRoute>} />
           
           <Route path="/team/members" element={<PrivateRoute allowedRoles={['team_lead', 'co_lead', 'admin']}><MembersList /></PrivateRoute>} />
