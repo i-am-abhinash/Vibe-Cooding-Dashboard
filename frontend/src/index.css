@@ -251,3 +251,35 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 @media(max-width:900px){.vibe-overview{grid-template-columns:1fr;}.vibe-orb-zone{min-height:480px;}.vibe-right{display:grid;grid-template-columns:1fr 1fr;}.vibe-attention{grid-column:1/-1;}.vibe-header-actions{width:100%;}.vibe-search-wrap{flex:1;}.vibe-search{width:100%;}.vibe-float{width:25%;}.vibe-member-row{grid-template-columns:repeat(auto-fit,minmax(80px,1fr));}}
 @media(max-width:600px){.vibe-shell{display:block;padding:12px 12px 20px;}.vibe-mobile-toggle{display:grid;place-items:center;position:fixed;z-index:100;left:12px;top:12px;width:42px;height:42px;border-radius:13px;}.vibe-sidebar{position:fixed;top:62px;left:12px;bottom:12px;height:auto;min-height:0;width:100px;z-index:90;display:none;padding:8px 5px;}.vibe-sidebar.is-open{display:flex;}.vibe-brand{padding-bottom:6px;}.vibe-mini-orb{display:none;}.vibe-nav-item.is-active .vibe-nav-icon{width:43px;height:43px;}.vibe-header{padding-left:50px;gap:12px;}.vibe-header-mark{display:none;}.vibe-greeting h1{font-size:19px;}.vibe-header-actions{margin-left:-50px;width:calc(100% + 50px);}.vibe-search kbd{display:none;}.vibe-orb-zone{min-height:410px;}.vibe-calendar{height:52px;width:100%;}.vibe-month{padding:0 8px;font-size:12px;gap:3px;}.vibe-date{flex:1;min-width:0;font-size:10px;height:44px;}.vibe-date b{font-size:12px;}.vibe-float{width:32%;min-height:67px;border-radius:15px;padding:8px 6px;}.vibe-float strong{font-size:21px;}.vibe-float small{font-size:10px;}.vibe-float-foot{display:none;}.vibe-float:nth-of-type(1),.vibe-float:nth-of-type(2){top:3%;}.vibe-float:nth-of-type(3),.vibe-float:nth-of-type(4){bottom:5%;}.vibe-orb-label{top:42%;}.vibe-right{display:flex;}.vibe-member-row{grid-template-columns:repeat(4,minmax(0,1fr));}.vibe-pedestal{height:71px;}.vibe-member-avatar{width:45px;height:45px;font-size:15px;}.vibe-member strong{font-size:11px;}.vibe-inner-content{padding:6px 0 24px;}.vibe-inner-content .material-glass,.vibe-inner-content .material-acrylic,.vibe-inner-content .material-crystal{padding:16px;}.vibe-inner-content table{min-width:560px;}.vibe-inner-content .overflow-x-auto{max-width:100%;}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important;}}
+
+
+/* Consistent interactive materials and sign-in portal */
+@theme { --color-brand-surface:#081426; }
+.vibe-action{display:inline-flex;align-items:center;gap:8px;padding:10px 15px;border:1px solid #8ccaff8c;border-radius:11px;background:linear-gradient(145deg,#287acb90,#273f9ca0 60%,#8a60dd70);box-shadow:inset 0 1px 2px #d0e9ff52,0 0 15px #367ef52b;color:white;font-size:13px;font-weight:650;transition:filter .2s,transform .2s;}
+.vibe-action:hover{filter:brightness(1.25);transform:translateY(-1px);}
+.vibe-action:disabled{opacity:.55;transform:none;}
+.vibe-progress{height:7px;background:#050b18;border:1px solid #849fcf24;border-radius:20px;overflow:hidden;}
+.vibe-progress span{display:block;height:100%;border-radius:20px;background:linear-gradient(90deg,#326dff,#3cdfff,#9b77ff);box-shadow:0 0 10px #56adff;transition:width .3s;}
+.vibe-task-card{padding:14px;border:1px solid #a3bdff25;border-radius:14px;background:linear-gradient(140deg,#5570c21a,#07102180);}
+.vibe-login{position:relative;isolation:isolate;display:flex;align-items:center;justify-content:flex-end;min-height:100dvh;padding:clamp(24px,8vw,130px);overflow:hidden;background:radial-gradient(ellipse at 36% 37%,#233c8d68,transparent 52%),linear-gradient(180deg,#03060bcf,#03071285 70%,#03050c73),url('/bg.jpg') center 65%/cover no-repeat;color:#eef5ff;}
+.vibe-login-card{position:relative;z-index:2;width:min(100%,440px);padding:clamp(24px,3vw,42px);border-radius:30px;background:radial-gradient(ellipse at 0 0,#597bde45,transparent 48%),linear-gradient(135deg,#1d2a4dba,#090f1cdd 55%,#2d2a4e91);box-shadow:inset 0 1px 5px #d8e9ff59,0 0 45px #3457ec26,0 30px 70px #0009;}
+.vibe-login-brand{display:flex;align-items:center;gap:17px;margin-bottom:30px;}
+.vibe-login-brand .vibe-mini-orb{margin:0;width:62px;height:62px;}
+.vibe-login-brand strong,.vibe-login-brand small{display:block;line-height:1.15;letter-spacing:.1em;}
+.vibe-login-brand strong{font-size:26px;font-weight:800;}
+.vibe-login-brand small{font-size:12px;letter-spacing:.25em;color:#afceff;}
+.vibe-field{display:flex;flex-direction:column;gap:8px;color:#c7d8f8;font-size:12px;font-weight:600;}
+.vibe-field>div{display:flex;align-items:center;gap:10px;padding:13px;border:1px solid #a9c7ff3b;border-radius:13px;background:#060d1bb0;box-shadow:inset 0 1px 5px #0008;color:#a9caff;}
+.vibe-field input{background:none;border:0;outline:none!important;color:white;flex:1;min-width:0;font-weight:400;font-size:14px;}
+.vibe-field>div:focus-within{border-color:#7bbdff;box-shadow:0 0 14px #479eff40;}
+.vibe-field input::placeholder{color:#91a3c1;}
+.vibe-login-orb{position:absolute;left:12%;top:50%;transform:translateY(-50%);width:clamp(220px,35vw,580px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 34% 24%,#d7eaffdd 0%,#7d9bff81 11%,#3154b6a8 25%,#08102d 48%,#20225b 67%,#c8a8ffa8 85%,#547dff 95%,#d7e7ff);box-shadow:inset 0 0 15px #e1d6ff,inset 0 -20px 50px #956dff7f,0 0 65px #5273ff6b,0 0 130px #5a49d348;}
+.vibe-login-orb div{position:absolute;inset:8%;border-radius:50%;border:2px solid #b2dcff9c;box-shadow:0 0 15px #a2a9ff,inset 0 0 25px #6a77ff;transform:rotate(-30deg) scaleX(.57);}
+.vibe-login-orb div:nth-child(2){inset:-12% -18%;transform:rotate(19deg) scaleY(.29);border-color:#f2c5ff;box-shadow:0 0 12px #a987ff;}
+.vibe-login-orb div:nth-child(3){inset:-12% -18%;transform:rotate(-25deg) scaleY(.32);border-color:#c8f0ff;box-shadow:0 0 13px #58d2ff;}
+.vibe-inner-content .material-glass button:not(.vibe-panel-link):not(.vibe-action):not(:disabled){transition:filter .2s;}
+.vibe-inner-content .material-glass button:not(.vibe-panel-link):not(.vibe-action):not(:disabled):hover{filter:brightness(1.2);}
+.vibe-inner-content .material-glass h3{color:#f0f5ff;}
+.vibe-inner-content .material-glass table{border-collapse:separate;border-spacing:0 5px;}
+.vibe-inner-content .material-glass tbody tr{background:#10203970;}
+@media(max-width:800px){.vibe-login{justify-content:center;padding:22px;}.vibe-login-orb{left:50%;top:35%;transform:translate(-50%,-50%);width:80vw;opacity:.55;}.vibe-login-card{backdrop-filter:blur(23px);}}
