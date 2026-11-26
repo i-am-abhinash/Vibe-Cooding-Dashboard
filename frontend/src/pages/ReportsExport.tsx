@@ -2,90 +2,31 @@ import { useState } from 'react';
 import AppShell from '../components/layout/AppShell';
 import { GlassCard, PageHeader } from '../components/ui/Core';
 import api from '../api';
-import { Download, FileSpreadsheet } from 'lucide-react';
+import { Download, FileSpreadsheet, Users, FolderKanban } from 'lucide-react';
 
-export default function ReportsExport() {
-  const [loading, setLoading] = useState(false);
-
-  const downloadCSV = async (type: string) => {
-    setLoading(true);
-    try {
-      let endpoint = '';
-      if (type === 'members') endpoint = '/members';
-      if (type === 'projects') endpoint = '/projects';
-      
-      const res = await api.get(endpoint);
-      const data = res.data;
-      
-      if (!data || data.length === 0) {
-        alert('No data available to export');
-        setLoading(false);
-        return;
-      }
-
-      // Flat map data
-      const headers = Object.keys(data[0]).filter(k => typeof data[0][k] !== 'object');
-      const csvRows = [];
-      csvRows.push(headers.join(','));
-
-      for (const row of data) {
-        const values = headers.map(header => {
-          const val = row[header];
-          const escaped = ('' + val).replace(/"/g, '""');
-          return `"${escaped}"`;
-        });
-        csvRows.push(values.join(','));
-      }
-
-      const blob = new Blob([csvRows.join('\\n')], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.setAttribute('hidden', '');
-      a.setAttribute('href', url);
-      a.setAttribute('download', `${type}_export_${new Date().toISOString().split('T')[0]}.csv`);
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-
-    } catch(e) {
-      alert('Failed to generate export');
-    }
-    setLoading(false);
-  };
-
-  return (
-    <AppShell>
-      <PageHeader title="Reports & Data Export" subtitle="Generate operational CSV reports" />
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        <GlassCard className="flex flex-col items-center justify-center p-8 text-center hover:border-cinematic-blue/30 transition-colors">
-          <FileSpreadsheet size={48} className="text-cinematic-blue mb-4 opacity-80" />
-          <h2 className="text-xl font-bold text-white mb-2">Member Progress Report</h2>
-          <p className="text-sm text-cinematic-muted mb-6">Exports all active team members, their attendance rates, modification counts, and project completion status.</p>
-          <button 
-            onClick={() => downloadCSV('members')}
-            disabled={loading}
-            className="flex items-center gap-2 px-6 py-3 bg-cinematic-blue text-brand-surface font-bold rounded-lg hover:bg-white transition-colors"
-          >
-            <Download size={18} /> Download CSV
-          </button>
-        </GlassCard>
-
-        <GlassCard className="flex flex-col items-center justify-center p-8 text-center hover:border-purple-400/30 transition-colors">
-          <FileSpreadsheet size={48} className="text-purple-400 mb-4 opacity-80" />
-          <h2 className="text-xl font-bold text-white mb-2">Projects Pipeline Report</h2>
-          <p className="text-sm text-cinematic-muted mb-6">Exports all individual projects across the team, including deadlines, current lifecycle status, and domain.</p>
-          <button 
-            onClick={() => downloadCSV('projects')}
-            disabled={loading}
-            className="flex items-center gap-2 px-6 py-3 bg-purple-500 text-white font-bold rounded-lg hover:bg-purple-400 transition-colors"
-          >
-            <Download size={18} /> Download CSV
-          </button>
-        </GlassCard>
-
-      </div>
-    </AppShell>
-  );
+export default function ReportsExport(){
+ const member=JSON.parse(localStorage.getItem('user')||'null')?.role==='member';
+ const [busy,setBusy]=useState('');
+ const [message,setMessage]=useState('');
+ const [failed,setFailed]=useState(false);
+ const downloadCSV=async(type:string)=>{
+  setBusy(type);setFailed(false);setMessage('');
+  try{
+   const r=await api.get(type==='members'?'/members':'/projects');
+   const data=Array.isArray(r.data)?r.data:[];
+   const rows=data.map(x=>type==='members'?{Name:x.name,Attendance:x.growth?.attendance,Progress:x.growth?.individualProjectProgress,Completed:x.growth?.individualProjectsCompleted,Participation:x.participation?.participationPercentage,OpenModifications:x.openModifications,Status:x.growth?.status}:{Name:x.name||x.title,Domain:x.domain,Member:x.memberName,Status:x.currentStatus||x.status,Progress:x.progressPercentage,Deadline:x.deadline,Repository:x.githubUrl});
+   if(!rows.length){setMessage('No records available to export.');return;}
+   const headers=Object.keys(rows[0]);
+   const escape=(value:any)=>{let s=String(value??'');if(/^[=+@-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};
+   const csv=[headers.map(escape).join(','),...rows.map(row=>headers.map(h=>escape((row as any)[h])).join(','))].join('\r\n');
+   const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+   const a=document.createElement('a');a.href=url;a.download=type+'_export_'+new Date().toISOString().slice(0,10)+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+   setMessage('CSV report prepared.');
+  }catch(e:any){setFailed(true);setMessage(e.response?.data?.error||'Unable to generate report.');}finally{setBusy('');}
+ };
+ const options=[...(!member?[{id:'members',Icon:Users,title:'Member Progress Report',desc:'Export attendance, project progress, participation, status and open modifications.'}]:[]),{id:'projects',Icon:FolderKanban,title:'Projects Pipeline Report',desc:'Export project names, domains, current status, deadlines and GitHub repository links.'}];
+ return <AppShell><PageHeader title="Reports & Data Export" subtitle="Download operational reports for the current development cycle"/>
+ {message&&<div role="status" className={(failed?'glass-panel-danger':'glass-panel')+' p-4 rounded-xl mb-5'}>{message}</div>}
+ <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">{options.map(({id,Icon,title,desc})=><GlassCard key={id} className="!p-7 gap-5"><div className="flex justify-between items-center"><span className={'vibe-float-icon '+(id==='projects'?'purple':'')}><Icon size={26}/></span><span className="vibe-live">CSV format</span></div><div><h2 className="text-xl font-bold mb-2">{title}</h2><p className="text-sm text-cinematic-muted leading-relaxed">{desc}</p></div><div className="vibe-task-card flex items-center gap-3"><FileSpreadsheet size={24} className="text-cinematic-success"/><div className="text-sm"><strong>Spreadsheet-compatible</strong><p className="text-xs text-cinematic-muted">Current records · comma-separated values</p></div></div><button className="vibe-action self-start" disabled={!!busy} onClick={()=>void downloadCSV(id)}><Download size={17}/>{busy===id?'Preparing…':'Download CSV'}</button></GlassCard>)}</div>
+ </AppShell>;
 }
