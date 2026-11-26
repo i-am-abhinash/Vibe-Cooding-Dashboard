@@ -1,163 +1,50 @@
-import { useEffect, useState } from 'react';
-import { Play, Send, GitPullRequest } from 'lucide-react';
+import { useEffect, useState, type FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FolderKanban, GitPullRequest, Send, ArrowRight, Users, Activity, CheckCircle2, Target, Box } from 'lucide-react';
 import api from '../api';
 import AppShell from '../components/layout/AppShell';
-import { CinematicSurface, StatusIndicator } from '../components/ui/Shared';
+import { GlassCard, PageHeader, Badge } from '../components/ui/Core';
 
-export default function MemberDashboard() {
-  const [data, setData] = useState<any>(null);
-
-  const fetchDashboard = () => api.get('/my-dashboard').then(res => setData(res.data)).catch(console.error);
-
-  useEffect(() => {
-    fetchDashboard();
-  }, []);
-
-  const createIdea = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const target = e.target as any;
-    await api.post('/projects/idea', {
-      name: target.name.value,
-      domain: target.domain.value,
-      expectedOutcome: target.expectedOutcome.value,
-      cycleId: data.cycle.id
-    });
-    fetchDashboard();
-  };
-
-  const startProject = async (id: string) => {
-    await api.post(`/projects/${id}/start`);
-    fetchDashboard();
-  };
-
-  const submitProject = async (e: React.FormEvent, id: string) => {
-    e.preventDefault();
-    const target = e.target as any;
-    try {
-      await api.post(`/projects/${id}/submit`, { githubUrl: target.githubUrl.value });
-      fetchDashboard();
-    } catch (err: any) {
-      alert(err.response?.data?.error);
-    }
-  };
-
-  if (!data) return <AppShell><div className="animate-pulse h-64 material-glass rounded-3xl" /></AppShell>;
-
-  const { cycle, dashboard } = data;
-   const member = dashboard?.profile || {};
-   member.projects = dashboard?.projects || [];
-   
-  const projects = member.projects || [];
-  const slots = [0,1,2,3].map(i => projects[i] || null);
-
-  return (
-    <AppShell cycle={cycle}>
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-16 preserve-3d">
-        
-        {/* PROJECT SPINE (LEFT) */}
-        <div className="xl:col-span-8 flex flex-col gap-10 preserve-3d relative">
-          <div className="absolute left-6 top-8 bottom-8 w-[1px] bg-cinematic-text/5 -z-10" />
-          <h2 className="text-[10px] uppercase tracking-[0.2em] text-cinematic-muted font-bold pl-16">Project Continuum</h2>
-          
-          {slots.map((p: any, i) => (
-            <div key={i} className="flex relative items-start group preserve-3d">
-              {/* Spine Node */}
-              <div className="w-12 h-12 flex-shrink-0 flex items-center justify-center relative mt-4">
-                <div className={`w-3 h-3 rounded-full ${p ? 'bg-cinematic-blue shadow-[0_0_15px_rgba(91,140,255,0.8)]' : 'bg-cinematic-surface-2 border border-cinematic-text/20'}`} />
-              </div>
-              
-              <div className="flex-1 pl-6 preserve-3d w-full max-w-[800px]">
-                {p ? (
-                  <CinematicSurface material="acrylic" className="transform hover:translate-z-10 hover:translate-x-2 transition-transform duration-500 p-8 w-full">
-                    <div className="flex justify-between items-start mb-6">
-                      <div>
-                        <h3 className="text-2xl font-light tracking-wide text-cinematic-text mb-2">{p.name}</h3>
-                        <span className="text-[9px] uppercase tracking-[0.2em] text-cinematic-muted bg-cinematic-bg px-2 py-1 rounded border border-cinematic-text/5">{p.domain}</span>
-                      </div>
-                      <StatusIndicator status={p.status} type="label" />
-                    </div>
-                    <p className="text-sm font-light text-cinematic-text-2 mb-8 leading-relaxed">{p.expectedOutcome}</p>
-                    
-                    <div className="flex gap-4">
-                      {p.status === 'idea_approved' && (
-                        <button onClick={() => startProject(p.id)} className="text-[10px] uppercase tracking-[0.2em] font-bold text-cinematic-bg bg-cinematic-blue hover:bg-cinematic-blue/90 px-6 py-3 rounded transition-colors flex items-center shadow-[0_0_20px_rgba(91,140,255,0.4)]">
-                          <Play size={12} className="mr-2" /> Initialize Build
-                        </button>
-                      )}
-                      {p.status === 'in_progress' && (
-                        <form onSubmit={(e) => submitProject(e, p.id)} className="flex w-full gap-4 max-w-lg">
-                          <input name="githubUrl" type="url" placeholder="GitHub Repository URL" required className="flex-1 bg-cinematic-surface-2 border border-cinematic-text/10 focus:border-cinematic-blue rounded px-4 py-3 text-sm outline-none text-cinematic-text transition-colors" />
-                          <button className="text-[10px] uppercase tracking-[0.2em] font-bold text-cinematic-bg bg-cinematic-blue hover:bg-cinematic-blue/90 px-6 py-3 rounded transition-colors flex items-center whitespace-nowrap shadow-[0_0_15px_rgba(91,140,255,0.3)]">
-                            <Send size={12} className="mr-2" /> Transmit
-                          </button>
-                        </form>
-                      )}
-                      {p.githubUrl && (
-                        <a href={p.githubUrl} target="_blank" className="inline-flex items-center text-xs text-cinematic-muted hover:text-cinematic-text transition-colors border border-cinematic-text/10 hover:border-cinematic-text/30 px-4 py-2.5 rounded bg-cinematic-bg">
-                          <GitPullRequest size={14} className="mr-2 opacity-50" /> Trace Source
-                        </a>
-                      )}
-                    </div>
-                  </CinematicSurface>
-                ) : (
-                  <CinematicSurface className="opacity-40 hover:opacity-100 transition-opacity duration-500 p-8 w-full max-w-[800px]">
-                    <form onSubmit={createIdea} className="space-y-6">
-                      <div className="flex justify-between items-center mb-2 border-b border-cinematic-text/5 pb-4">
-                        <span className="text-[10px] uppercase tracking-[0.2em] text-cinematic-muted font-bold">Unallocated Buffer</span>
-                      </div>
-                      <div className="flex gap-6">
-                        <input name="name" placeholder="Designation" required className="flex-1 bg-cinematic-surface-2 border border-cinematic-text/5 focus:border-cinematic-blue/50 rounded px-4 py-3 text-sm outline-none text-cinematic-text transition-colors" />
-                        <input name="domain" placeholder="Vector / Stack" required className="w-1/3 bg-cinematic-surface-2 border border-cinematic-text/5 focus:border-cinematic-blue/50 rounded px-4 py-3 text-sm outline-none text-cinematic-text transition-colors" />
-                      </div>
-                      <textarea name="expectedOutcome" placeholder="Expected Parameters & Outcome" rows={2} required className="w-full bg-cinematic-surface-2 border border-cinematic-text/5 focus:border-cinematic-blue/50 rounded px-4 py-3 text-sm outline-none text-cinematic-text resize-none transition-colors" />
-                      <button className="w-full text-[10px] uppercase tracking-[0.2em] font-bold text-cinematic-muted hover:text-cinematic-text border border-cinematic-text/10 hover:border-cinematic-text/30 bg-cinematic-surface-2 px-4 py-3 rounded transition-colors">
-                        Draft Proposition
-                      </button>
-                    </form>
-                  </CinematicSurface>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* GROUP MISSION (RIGHT) */}
-        <div className="xl:col-span-4 preserve-3d">
-           <h2 className="text-[10px] uppercase tracking-[0.2em] text-cinematic-muted font-bold mb-8">Group Mission Control</h2>
-           <CinematicSurface material="crystal" className="relative overflow-hidden transform hover:translate-z-10 transition-transform duration-500">
-             
-             {member.groupContributions.length > 0 ? member.groupContributions.map((c: any) => (
-               <div key={c.id}>
-                 <StatusIndicator status={c.status} type="label" />
-                 <h3 className="text-3xl font-extralight tracking-wide mt-6 mb-8 text-cinematic-text">{c.task}</h3>
-                 
-                 {c.githubUrl ? (
-                   <div>
-                     <p className="text-[9px] uppercase tracking-[0.2em] text-cinematic-success font-bold mb-3">Payload Delivered</p>
-                     <a href={c.githubUrl} target="_blank" className="inline-flex items-center text-xs text-cinematic-text-2 hover:text-cinematic-text transition-colors border border-cinematic-text/10 px-4 py-3 rounded bg-cinematic-surface-2 w-full truncate">
-                       <GitPullRequest size={14} className="mr-3 flex-shrink-0 opacity-50" /> {c.githubUrl}
-                     </a>
-                   </div>
-                 ) : c.status === 'assigned' && (
-                    <form onSubmit={async (e) => {
-                      e.preventDefault();
-                      const target = e.target as any;
-                      try {
-                        await api.post(`/group-contributions/${c.id}/submit`, { githubUrl: target.githubUrl.value });
-                        fetchDashboard();
-                      } catch (err: any) { alert(err.response?.data?.error); }
-                    }}>
-                      <input name="githubUrl" type="url" placeholder="PR Payload URL" required className="w-full bg-cinematic-surface-2 border border-cinematic-text/10 focus:border-cinematic-blue/50 rounded px-4 py-3 text-sm outline-none text-cinematic-text mb-4 transition-colors" />
-                      <button className="w-full text-[10px] uppercase tracking-[0.2em] font-bold text-cinematic-blue border border-cinematic-blue/30 hover:bg-cinematic-blue/10 px-4 py-3 rounded transition-colors flex items-center justify-center">
-                        Execute Commit
-                      </button>
-                    </form>
-                 )}
-               </div>
-             )) : <p className="text-sm font-light text-cinematic-muted">No mission parameters assigned.</p>}
-           </CinematicSurface>
-        </div>
-      </div>
-    </AppShell>
-  );
+export default function MemberDashboard(){
+ const navigate=useNavigate();
+ const [data,setData]=useState<any>(null);
+ const [group,setGroup]=useState<any>(null);
+ const [error,setError]=useState('');
+ const [busy,setBusy]=useState('');
+ const load=async()=>{try{const [d,g]=await Promise.allSettled([api.get('/my-dashboard'),api.get('/group')]);if(d.status==='rejected')throw d.reason;setData(d.value.data);if(g.status==='fulfilled')setGroup(g.value.data);}catch(e:any){setError(e.response?.data?.error||'Unable to load your workspace.');}};
+ useEffect(()=>{void load();},[]);
+ const action=async(id:string,endpoint:string,payload:any)=>{setBusy(id);setError('');try{await api.post(endpoint,payload);await load();}catch(e:any){setError(e.response?.data?.error||'Unable to save your changes.');}finally{setBusy('');}};
+ const handleIdea=(e:FormEvent<HTMLFormElement>,id:string)=>{e.preventDefault();const f=new FormData(e.currentTarget);void action(id,'/projects/'+id+'/idea',{name:f.get('name'),domain:f.get('domain'),description:f.get('description'),expectedOutcome:f.get('description')});};
+ const handleSubmit=(e:FormEvent<HTMLFormElement>,id:string)=>{e.preventDefault();const f=new FormData(e.currentTarget);void action(id,'/projects/'+id+'/submit',{githubUrl:f.get('githubUrl'),reportUrl:f.get('reportUrl')||''});};
+ const handleContribution=(e:FormEvent<HTMLFormElement>,id:string)=>{e.preventDefault();const f=new FormData(e.currentTarget);void action(id,'/group/contributions/'+id+'/submit',{githubUrl:f.get('githubUrl'),branch:f.get('branch')});};
+ if(!data)return <AppShell><div className="vibe-state glass-panel" role="status">{error||'Loading your workspace…'}{error&&<button onClick={()=>void load()}>Retry</button>}</div></AppShell>;
+ const d=data.dashboard||{},growth=d.growth||{},profile=d.profile||{};
+ const projects:any[]=d.projects||[];
+ const contributions:any[]=group?.contributions||[];
+ const input='w-full px-3 py-3 rounded-xl border border-white/15 text-sm bg-black/20';
+ const submit='vibe-action';
+ const metrics=[{Icon:Target,label:'Project progress',value:(growth.individualProjectProgress||0)+'%'},{Icon:CheckCircle2,label:'Projects completed',value:(growth.individualProjectsCompleted||0)+' / 4'},{Icon:Activity,label:'Attendance',value:(d.attendance?.percentage||0)+'%'},{Icon:Users,label:'Group contributions',value:growth.groupContribution||0}];
+ return <AppShell cycle={data.cycle}>
+  <PageHeader title="Member Workspace" subtitle="Your monthly development cycle, contributions and progress"/>
+  <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-7">{metrics.map(({Icon,label,value})=><GlassCard key={label} className="!p-4"><div className="flex items-center gap-3"><span className="vibe-float-icon"><Icon size={22}/></span><div><div className="text-2xl font-bold text-white">{value}</div><p className="text-xs text-cinematic-muted">{label}</p></div></div></GlassCard>)}</div>
+  {error&&<div role="alert" className="glass-panel-danger p-4 rounded-xl mb-4 text-cinematic-danger">{error}</div>}
+  <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+   <section className="xl:col-span-8 min-w-0">
+    <div className="flex items-center justify-between mb-4"><h2 className="text-xl font-semibold">Project Continuum</h2><button className="vibe-panel-link" onClick={()=>navigate('/member/projects')}>All projects <ArrowRight size={15}/></button></div>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">{Array.from({length:Math.max(4,projects.length)},(_,i)=>{const p=projects[i];const state=String(p?.currentStatus||p?.status||'').toUpperCase();const pct=Math.max(0,Math.min(100,Number(p?.evaluation?.percentage??p?.progressPercentage??0)));return <GlassCard key={p?.id||i} className="gap-4"><div className="flex items-center justify-between gap-2"><span className="vibe-float-icon"><FolderKanban size={22}/></span><Badge variant={state==='COMPLETED'?'success':state==='MODIFICATION_REQUESTED'?'warning':'info'}>{p?state.replaceAll('_',' '):'UNASSIGNED'}</Badge></div><div><h3 className="text-lg font-semibold text-white">{p?.name||p?.title||'Project '+(i+1)}</h3><p className="text-sm text-cinematic-muted mt-1">{p?.domain||'Individual project slot'}</p></div>
+    {p?<><div><div className="flex justify-between text-xs text-cinematic-muted mb-2"><span>Completion</span><span>{pct}%</span></div><div className="vibe-progress"><span style={{width:pct+'%'}}/></div></div><p className="text-sm text-cinematic-text-2">{p.expectedOutcome||p.description||'No project description yet.'}</p>
+    {state==='IDEA'&&<form className="space-y-3" onSubmit={e=>handleIdea(e,p.id)}><input name="name" aria-label="Project name" defaultValue={p.name||''} placeholder="Project name" className={input} required/><input name="domain" aria-label="Project domain" defaultValue={p.domain||''} placeholder="Domain / technology" className={input} required/><textarea name="description" aria-label="Expected outcome" defaultValue={p.description||p.expectedOutcome||''} placeholder="Expected outcome" className={input} required/><button className={submit} disabled={busy===p.id}><Send size={15}/> Submit idea</button></form>}
+    {['DEVELOPMENT','DOCUMENTATION','MODIFICATION_REQUESTED','IN_PROGRESS'].includes(state)&&<form className="space-y-3" onSubmit={e=>handleSubmit(e,p.id)}><input name="githubUrl" type="url" aria-label="GitHub repository" placeholder="GitHub repository URL" className={input} defaultValue={p.githubUrl||''} required/><input name="reportUrl" type="url" aria-label="Report URL" placeholder="Report URL (optional)" className={input}/><button className={submit} disabled={busy===p.id}><Send size={15}/> Submit project</button></form>}
+    {p.githubUrl&&<a className="vibe-panel-link mt-auto" href={p.githubUrl} target="_blank" rel="noreferrer"><GitPullRequest size={15}/> View repository <ArrowRight size={13}/></a>}</>:<p className="text-sm text-cinematic-muted">No project record has been allocated to this slot. Contact your team lead.</p>}
+    </GlassCard>;})}</div>
+   </section>
+   <aside className="xl:col-span-4 space-y-5 min-w-0">
+     <GlassCard className="gap-4"><div className="flex items-center gap-3"><span className="vibe-float-icon purple"><Box size={23}/></span><div><h2 className="text-lg font-semibold">Group Mission</h2><p className="text-xs text-cinematic-muted">{group?.project?.name||'Current group project'}</p></div></div>
+       {contributions.length?contributions.map(c=><div className="vibe-task-card" key={c.id}><Badge variant="info">{String(c.status||'assigned').replaceAll('_',' ')}</Badge><h3 className="font-semibold mt-2 mb-2">{c.task||c.title||'Contribution'}</h3>{c.description&&<p className="text-xs text-cinematic-muted mb-3">{c.description}</p>}{c.githubUrl?<a className="vibe-panel-link" href={c.githubUrl} target="_blank" rel="noreferrer">View submitted contribution <ArrowRight size={14}/></a>:<form className="space-y-3" onSubmit={e=>handleContribution(e,c.id)}><input name="githubUrl" type="url" aria-label="Pull request URL" className={input} placeholder="Pull request URL" required/><input name="branch" aria-label="Branch" className={input} placeholder="Branch name" required/><button className={submit} disabled={busy===c.id}><GitPullRequest size={15}/> Submit contribution</button></form>}</div>):<p className="text-sm text-cinematic-muted">No group contributions assigned yet.</p>}
+       <button className="vibe-panel-link" onClick={()=>navigate('/member/group')}>Open group workspace <ArrowRight size={15}/></button>
+     </GlassCard>
+     <GlassCard className="gap-3"><h2 className="text-lg font-semibold">Growth indicators</h2><p className="text-sm text-cinematic-muted">{profile.name||'Member'} · {growth.status||'In progress'}</p>{(growth.growthIndicators||[]).map((s:string,i:number)=><p className="text-sm text-cinematic-success" key={i}>✓ {s}</p>)}{(growth.blockers||[]).map((s:string,i:number)=><p className="text-sm text-cinematic-warning" key={i}>• {s}</p>)}<button className="vibe-panel-link" onClick={()=>navigate('/member/growth')}>View growth <ArrowRight size={15}/></button></GlassCard>
+   </aside>
+  </div>
+ </AppShell>;
 }
