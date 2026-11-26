@@ -11,7 +11,7 @@ export const GlassCard = React.forwardRef<HTMLDivElement, React.HTMLAttributes<H
     <div
       ref={ref}
       className={cn(
-        "material-glass p-6 rounded-3xl preserve-3d border border-white/5 flex flex-col relative overflow-hidden group",
+        "material-glass vibe-shared-card p-6 rounded-3xl flex flex-col relative overflow-hidden group",
         className
       )}
       {...props}
@@ -39,7 +39,7 @@ export const Badge = ({ children, variant = 'default', className }: { children: 
 };
 
 export const PageHeader = ({ title, subtitle, children }: { title: string, subtitle?: string, children?: React.ReactNode }) => (
-  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+  <div className="vibe-page-header flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
     <div>
       <h1 className="text-3xl font-bold tracking-tight text-white mb-1">{title}</h1>
       {subtitle && <p className="text-cinematic-muted text-sm tracking-wide">{subtitle}</p>}
