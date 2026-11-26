@@ -1,89 +1,22 @@
 import { useEffect, useState } from 'react';
 import AppShell from '../components/layout/AppShell';
-import { GlassCard, PageHeader } from '../components/ui/Core';
+import { GlassCard, PageHeader, Badge } from '../components/ui/Core';
 import api from '../api';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { TrendingUp, Users, Activity, Target } from 'lucide-react';
 
-export default function GrowthAnalytics() {
-  const [data, setData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true); 
-  
-
-  useEffect(() => {
-    api.get('/members')
-      .then(res => {
-        // Since we only seeded one month, we will generate historical trends based on their current score for the visual demo
-        const members = res.data;
-        
-        // Generate trend data
-        const months = ['Jul', 'Aug', 'Sep', 'Oct'];
-        const chartData = months.map((m, i) => {
-          let teamAvg = 0;
-          let activeCount = 0;
-          members.forEach((mem: any) => {
-             const base = mem.growth?.individualProjectProgress || 50;
-             const variation = (3 - i) * (Math.random() * 10 - 5); // Random historical variance
-             teamAvg += Math.max(0, Math.min(100, base - variation));
-             if (mem.participation?.active) activeCount++;
-          });
-          
-          return {
-            name: m,
-            teamCompletionAvg: Math.round(teamAvg / members.length),
-            activeParticipants: activeCount - (3 - i) // Slightly fewer in past months
-          };
-        });
-        
-        setData(chartData);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setLoading(false);
-      });
-  }, []);
-
-  if (loading) return <AppShell><div className="animate-pulse h-96 material-glass rounded-3xl" /></AppShell>;
-
-  return (
-    <AppShell>
-      <PageHeader title="Growth Analytics" subtitle="Track historical completion and participation trends across cycles" />
-
-      <div className="grid grid-cols-1 gap-8">
-        <GlassCard className="h-[400px]">
-          <h3 className="text-white font-bold mb-6">Team Project Completion Rate Trend</h3>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-              <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" tick={{fill: 'rgba(255,255,255,0.5)', fontSize: 12}} />
-              <YAxis stroke="rgba(255,255,255,0.5)" tick={{fill: 'rgba(255,255,255,0.5)', fontSize: 12}} />
-              <Tooltip 
-                contentStyle={{ backgroundColor: 'rgba(10,15,30,0.9)', borderColor: 'rgba(77,163,255,0.2)', borderRadius: '8px' }}
-                itemStyle={{ color: '#fff' }}
-              />
-              <Legend />
-              <Line type="monotone" name="Avg Completion %" dataKey="teamCompletionAvg" stroke="#4da3ff" strokeWidth={3} dot={{r: 4, fill: '#4da3ff'}} activeDot={{r: 6}} />
-            </LineChart>
-          </ResponsiveContainer>
-        </GlassCard>
-
-        <GlassCard className="h-[400px]">
-          <h3 className="text-white font-bold mb-6">Active Group Participation Trend</h3>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-              <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" tick={{fill: 'rgba(255,255,255,0.5)', fontSize: 12}} />
-              <YAxis stroke="rgba(255,255,255,0.5)" tick={{fill: 'rgba(255,255,255,0.5)', fontSize: 12}} />
-              <Tooltip 
-                contentStyle={{ backgroundColor: 'rgba(10,15,30,0.9)', borderColor: 'rgba(168,85,247,0.2)', borderRadius: '8px' }}
-                itemStyle={{ color: '#fff' }}
-              />
-              <Legend />
-              <Line type="monotone" name="Active Members" dataKey="activeParticipants" stroke="#a855f7" strokeWidth={3} dot={{r: 4, fill: '#a855f7'}} activeDot={{r: 6}} />
-            </LineChart>
-          </ResponsiveContainer>
-        </GlassCard>
-      </div>
-    </AppShell>
-  );
+export default function GrowthAnalytics(){
+ const member=JSON.parse(localStorage.getItem('user')||'null')?.role==='member';
+ const [rows,setRows]=useState<any[]>([]);
+ const [error,setError]=useState('');
+ const [loading,setLoading]=useState(true);
+ useEffect(()=>{api.get(member?'/my-dashboard':'/members').then(r=>{const members=member?[{name:r.data.dashboard?.profile?.name,growth:r.data.dashboard?.growth,participation:r.data.dashboard?.groupProject?.participation}]:r.data;setRows((Array.isArray(members)?members:[]).map(m=>({name:m.name||'Member',completion:Number(m.growth?.individualProjectProgress)||0,attendance:Number(m.growth?.attendance)||0,participation:Number(m.participation?.participationPercentage)||0,status:m.growth?.status||'In Progress'})));}).catch(e=>setError(e.response?.data?.error||'Could not load growth metrics.')).finally(()=>setLoading(false));},[member]);
+ const avg=(key:string)=>rows.length?Math.round(rows.reduce((sum,r)=>sum+Number(r[key]||0),0)/rows.length):0;
+ const metrics=[{Icon:Target,label:'Project progress',value:avg('completion')+'%'},{Icon:Activity,label:'Attendance',value:avg('attendance')+'%'},{Icon:Users,label:'Participation',value:avg('participation')+'%'},{Icon:TrendingUp,label:'On track / completed',value:rows.filter(r=>['On Track','Completed'].includes(r.status)).length+' / '+rows.length}];
+ return <AppShell><PageHeader title="Growth Analytics" subtitle="Evidence-based performance snapshot for the active cycle"/>
+ {loading?<div className="vibe-state glass-panel">Loading growth metrics…</div>:error?<div className="vibe-state glass-panel-danger" role="alert">{error}</div>:<>
+ <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">{metrics.map(({Icon,label,value})=><GlassCard key={label} className="!p-4"><div className="flex items-center gap-3"><span className="vibe-float-icon"><Icon size={23}/></span><div><p className="text-xs text-cinematic-muted">{label}</p><strong className="text-2xl text-white">{value}</strong></div></div></GlassCard>)}</div>
+ <GlassCard className="mb-6"><h2 className="font-semibold text-xl mb-5">Current cycle comparison</h2>{rows.length?<div style={{height:340}}><ResponsiveContainer width="100%" height="100%"><BarChart data={rows} margin={{top:8,right:10,left:-10,bottom:12}}><defs><linearGradient id="growthBlue" x1="0" y1="0" x2="0" y2="1"><stop stopColor="#52d9ff"/><stop offset="1" stopColor="#3256cf"/></linearGradient><linearGradient id="growthPurple" x1="0" y1="0" x2="0" y2="1"><stop stopColor="#be95ff"/><stop offset="1" stopColor="#6745d8"/></linearGradient></defs><CartesianGrid stroke="#a3b9ec18" vertical={false}/><XAxis dataKey="name" tick={{fill:'#c7d8f8',fontSize:11}} tickLine={false}/><YAxis domain={[0,100]} tick={{fill:'#c7d8f8',fontSize:11}} tickLine={false}/><Tooltip contentStyle={{background:'#0d172d',border:'1px solid #87a3f05c',borderRadius:10}}/><Legend/><Bar name="Project progress" dataKey="completion" fill="url(#growthBlue)" radius={[6,6,0,0]}/><Bar name="Participation" dataKey="participation" fill="url(#growthPurple)" radius={[6,6,0,0]}/><Bar name="Attendance" dataKey="attendance" fill="#39dfc4" radius={[6,6,0,0]}/></BarChart></ResponsiveContainer></div>:<p className="vibe-empty">No performance records available.</p>}<p className="text-xs text-cinematic-muted mt-3">Historical trends will be available when persisted monthly snapshots are connected. This view uses current API records only.</p></GlassCard>
+ <GlassCard><h2 className="text-xl font-semibold mb-4">Performance overview</h2><div className="grid grid-cols-1 lg:grid-cols-2 gap-3">{rows.map((r,i)=><div key={i} className="vibe-task-card"><div className="flex justify-between items-center gap-2 mb-3"><strong>{r.name}</strong><Badge variant={r.status==='Needs Attention'?'warning':'info'}>{r.status}</Badge></div>{[['Projects',r.completion],['Participation',r.participation],['Attendance',r.attendance]].map(([label,value])=><div key={label} className="mb-3"><div className="flex justify-between text-xs text-cinematic-muted mb-1"><span>{label}</span><span>{value}%</span></div><div className="vibe-progress"><span style={{width:Math.max(0,Math.min(100,Number(value)))+'%'}}/></div></div>)}</div>)}</div></GlassCard>
+ </>}</AppShell>;
 }
