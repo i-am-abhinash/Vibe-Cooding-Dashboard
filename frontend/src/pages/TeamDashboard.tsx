@@ -1,6 +1,6 @@
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, ChevronRight, Users, FolderKanban, AlertTriangle, Check, Play, Circle, Box, GitPullRequest, UserRound, Activity } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, Users, FolderKanban, AlertTriangle, Check, Play, Circle, Box, GitPullRequest, UserRound, Activity } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import api from '../api';
 import AppShell from '../components/layout/AppShell';
@@ -84,6 +84,8 @@ export default function TeamDashboard(){
  const [period,setPeriod]=useState(0);
  const [range,setRange]=useState(7);
  const [showAll,setShowAll]=useState(false);
+ const memberStrip=useRef<HTMLDivElement>(null);
+ const scrollMembers=(direction:number)=>{const strip=memberStrip.current;if(strip)strip.scrollBy({left:direction*Math.max(100,strip.clientWidth*.75),behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});};
  const load=async()=>{setError('');try{const response=await api.get('/team-dashboard');if(response.data?.error)throw new Error(response.data.error);setData(response.data);const [p,g]=await Promise.allSettled([api.get('/projects'),api.get('/group')]);if(p.status==='fulfilled'&&Array.isArray(p.value.data))setProjects(p.value.data);if(g.status==='fulfilled')setGroup(g.value.data);}catch(e:any){setError(e.response?.data?.error||e.message||'Could not load dashboard');}};
  useEffect(()=>{void load();},[]);
  if(error||!data)return <AppShell><div className="vibe-state glass-panel" role={error?'alert':'status'}>{error?<><h2>Dashboard unavailable</h2><p>{error}</p><button onClick={()=>void load()}>Retry connection</button></>:<p>Loading your team dashboard…</p>}</div></AppShell>;
@@ -112,8 +114,8 @@ export default function TeamDashboard(){
       {metrics.map(({label,value,Icon,path,color,foot})=><button key={label} className="vibe-float glass-panel" onClick={()=>navigate(path)}><div className="vibe-float-row"><span className={'vibe-float-icon '+color}><Icon size={26}/></span><div><strong>{value}</strong><small>{label}</small></div></div><div className="vibe-float-foot">{foot==='members'?<>{members.slice(0,4).map(m=><span className="vibe-mini-avatar" key={m.id}>{initials(m.name||'Member')}</span>)}<ChevronRight size={16}/></>:<svg width="39" height="18" viewBox="0 0 39 18" aria-hidden="true">{[5,9,7,13,11,17].map((h,i)=><rect key={i} x={i*6+1} y={18-h} width="4" height={h} rx="1" fill="#69d6ff"/>)}</svg>}</div></button>)}
     </div>
     <div className="vibe-members">
-      <button className="vibe-section-link" onClick={()=>navigate('/team/members')}>Team Members <ChevronRight size={18}/></button>
-      {members.length?<div className="vibe-member-row">{members.map((m,i)=>{const pct=cap(m.growth?.individualProjectProgress);const name=m.name||'Member';return <button key={m.id} onClick={()=>navigate('/team/member/'+m.id)} title={name+' · '+pct+'%'} className="vibe-member" style={{'--member-glow':glow[i%glow.length]} as CSSProperties}><span className="vibe-pedestal"><span className="vibe-member-avatar">{m.avatarUrl||m.photoURL?<img src={m.avatarUrl||m.photoURL} alt={name}/>:initials(name)}</span></span><strong>{name}</strong><small className={pct===100?'complete':''}>{pct}%</small></button>;})}</div>:<p className="vibe-empty">No team members in this cycle.</p>}
+      <div className="vibe-members-header"><button className="vibe-section-link" onClick={()=>navigate('/team/members')}>Team Members <ChevronRight size={18}/></button>{members.length>0&&<div className="vibe-member-controls"><button className="glass-panel" onClick={()=>scrollMembers(-1)} aria-label="Scroll members left"><ChevronLeft size={19}/></button><button className="glass-panel" onClick={()=>scrollMembers(1)} aria-label="Scroll members right"><ChevronRight size={19}/></button></div>}</div>
+      {members.length?<div className="vibe-member-row" ref={memberStrip} tabIndex={0} role="region" aria-label="Horizontally scrollable team members">{members.map((m,i)=>{const pct=cap(m.growth?.individualProjectProgress);const name=m.name||'Member';return <button key={m.id} onClick={()=>navigate('/team/member/'+m.id)} title={name+' · '+pct+'%'} className="vibe-member" style={{'--member-glow':glow[i%glow.length]} as CSSProperties}><span className="vibe-pedestal"><span className="vibe-member-avatar">{m.avatarUrl||m.photoURL?<img src={m.avatarUrl||m.photoURL} alt={name}/>:initials(name)}</span></span><strong>{name}</strong><small className={pct===100?'complete':''}>{pct}%</small></button>;})}</div>:<p className="vibe-empty">No team members in this cycle.</p>}
     </div>
    </section>
    <aside className="vibe-right" aria-label="Project timeline, activity and alerts">
