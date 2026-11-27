@@ -65,3 +65,14 @@ export const calculateGroupParticipation = (memberId: string, groupProjectId: st
     }
   };
 };
+
+/** Aggregate assigned features across every group in the managed cycle. */
+export function calculateManagedParticipation(memberId:string,groups:any[]){
+ const tasks=groups.flatMap(g=>(g.features||[]).filter((f:any)=>f.assignee===memberId));
+ const completed=tasks.filter(f=>['IMPLEMENTED','VERIFIED'].includes(f.status)).length;
+ const verified=tasks.filter(f=>f.status==='VERIFIED').length;
+ const started=tasks.filter(f=>['IN_PROGRESS','IMPLEMENTED','VERIFIED'].includes(f.status)).length;
+ const lastActivityAt=tasks.map(f=>f.updatedAt||f.reviewedAt).filter(Boolean).sort().at(-1)||null;
+ const percentage=tasks.length?Math.round(completed/tasks.length*100):0;
+ return {active:started>0,participationPercentage:percentage,evidence:[completed+' of '+tasks.length+' assigned features implemented',verified+' features verified'],missingEvidence:tasks.length?[]:['No group features assigned'],lastActivityAt,contributionCount:completed,details:{commits:0,pullRequests:0,reviews:verified,tasksCompleted:completed,requirementsContributed:completed}};
+}
