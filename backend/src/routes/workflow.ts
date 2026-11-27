@@ -62,6 +62,26 @@ workflowRouter.post('/cycles',handle(async(req,res)=>{
   audit(tx,u,{id:cycleRef.id,cycleId:cycleRef.id},'CYCLE_CREATED',{memberCount:members.length});return {id:cycleRef.id,assignments:members.length*4};
  });res.status(201).json(result);
 }));
+workflowRouter.post('/cycles/:id/slot',handle(async(req,res)=>{
+ const u=req.user;ensure(u.role==='team_lead','Only the team lead may update common assignments',403);const b=req.body||{},slot=Number(b.slot);
+ ensure(Number.isInteger(slot)&&slot>=1&&slot<=4,'Select a project slot');ensure(b.changeDeadline===true||b.changePermissions===true,'Choose a setting to update');
+ const due=b.changeDeadline===true?deadline(b.deadline):null;const reason=text(b.note,'Reason for update',500);
+ const permissions={editIdea:b.permissions?.editIdea===true,addFeatures:b.permissions?.addFeatures===true,editFeatures:b.permissions?.editFeatures===true,deleteFeatures:b.permissions?.deleteFeatures===true};
+ const result=await db.runTransaction(async tx=>{
+  const cref=collection('monthlyCycles').doc(req.params.id as string);const cs=await tx.get(cref);const cycle=cs.data();
+  ensure(cs.exists&&cycle?.teamId===u.teamId&&cycle?.managedWorkflow&&cycle?.status==='active','Active managed cycle not found',404);
+  const snapshot=await tx.get(collection('projects').where('cycleId','==',cref.id));
+  const projects=snapshot.docs.filter(d=>{const p=d.data();return p.teamId===u.teamId&&p.type==='individual'&&p.slot===slot&&p.managedWorkflow;});
+  ensure(projects.length+2<=500,'Too many assignments for an atomic update');
+  const dates=[...(cycle?.deadlines||[])];
+  if(due){dates[slot-1]=due;ensure(dates.every((v:string,i:number)=>i===0||v>dates[i-1]),'Common deadlines must remain in chronological order');}
+  const config={...(cycle?.slotPermissions||{})};
+  if(b.changePermissions===true)config[String(slot)]=permissions;
+  tx.update(cref,{deadlines:dates,slotPermissions:config,updatedAt:stamp()});
+  for(const doc of projects){const p=doc.data(),changes:any={updatedAt:stamp()};if(due){changes.deadline=due;changes.deadlineReason=reason;if(p.submittedAt)changes.submissionTiming=p.submittedAt<=due?'ON_TIME':'LATE';}if(b.changePermissions===true)changes.permissions=permissions;tx.update(doc.ref,changes);}
+  audit(tx,u,{id:cref.id,cycleId:cref.id},'SLOT_UPDATED',{slot,note:reason,changeDeadline:!!due,changePermissions:b.changePermissions===true});return {updated:projects.length};
+ });res.json(result);
+}));
 workflowRouter.post('/groups',handle(async(req,res)=>{
  const u=req.user;ensure(admin(u),'Only lead and co-lead can create groups',403);const b=req.body||{};
  const name=text(b.name,'Project name',160),groupName=text(b.groupName,'Group name',100),description=text(b.description,'Project description',2000),due=deadline(b.deadline);
@@ -92,9 +112,14 @@ workflowRouter.post('/projects/:id/action',handle(async(req,res)=>{
     ensure(first||perms.editIdea||name===p.name&&domain===p.domain&&description===p.description,'Idea edits are locked',403);
     const incoming=normalized(b.features);const old=new Map(fs.map((f:any)=>[f.id,f]));
     const raw=b.features as any[];const seen=new Set<string>();
-    next.features=incoming.map((f:any,i:number)=>{const key=raw[i].id;if(!key){ensure(first||perms.addFeatures,'Adding features is disabled',403);return f;}const prior=old.get(key) as any;ensure(prior&&!seen.has(key),'Invalid feature identifier');seen.add(key);ensure(perms.editFeatures||f.title===prior.title&&f.description===prior.description,'Editing features is disabled',403);return {...prior,title:f.title,description:f.description};});
+    next.features=incoming.map((f:any,i:number)=>{const key=raw[i].id;if(!key){ensure(first||perms.addFeatures,'Adding features is disabled',403);return f;}const prior=old.get(key) as any;ensure(prior&&!seen.has(key),'Invalid feature identifier');seen.add(key);ensure(perms.editFeatures||f.title===prior.title&&f.description===prior.description,'Editing features is disabled',403);return {...prior,title:f.title,description:f.description,...(f.title!==prior.title||f.description!==prior.description?{status:'NOT_STARTED',reviewNote:'Feature details changed; implementation must be updated'}:{})};});
     ensure(first||perms.deleteFeatures||fs.every((f:any)=>seen.has(f.id)),'Deleting features is disabled',403);
     Object.assign(next,{name,title:name,domain,description,expectedOutcome:description,verificationStatus:'DRAFT'});if(b.finalize===true){next.featuresLocked=true;next.verificationStatus='IN_PROGRESS';}break;
+   }
+   case 'unlock_plan':{
+    ensure(u.role==='team_lead'&&!group,'Only team lead may reopen individual planning',403);
+    ensure(p.featuresLocked,'Planning is already open',409);const reason=text(b.note,'Reason for reopening planning',500);
+    next.featuresLocked=false;invalidate();next.verificationStatus='DRAFT';next.planReopenedReason=reason;break;
    }
    case 'feature_status':{
     const f=feature();ensure(p.featuresLocked,'Finalize features first',409);ensure(group?u.role==='member'&&f.assignee===u.id:own,'Only the assigned member may update this feature',403);
@@ -103,7 +128,7 @@ workflowRouter.post('/projects/:id/action',handle(async(req,res)=>{
     f.status=b.status;f.updatedAt=stamp();invalidate();if(fs.some((x:any)=>x.status==='REOPENED'))next.verificationStatus='CHANGES_REQUESTED';break;
    }
    case 'feature_review':{
-    ensure(lead,'Lead/co-lead only',403);const f=feature();ensure(p.featuresLocked,'Project is not finalized',409);ensure(['VERIFIED','REOPENED'].includes(b.status),'Invalid review decision');ensure(b.status!=='VERIFIED'||f.status==='IMPLEMENTED','Only implemented features may be verified',409);
+    ensure(lead,'Lead/co-lead only',403);const f=feature();ensure(p.featuresLocked,'Project is not finalized',409);ensure(['VERIFIED','REOPENED'].includes(b.status),'Invalid review decision');ensure(b.status==='VERIFIED'?f.status==='IMPLEMENTED':['IMPLEMENTED','VERIFIED'].includes(f.status),'Only implemented or verified features may be reviewed',409);
     f.reviewNote=b.status==='REOPENED'?text(b.note,'Modification reason',1000):String(b.note||'').slice(0,1000);f.status=b.status;f.reviewedBy=u.id;f.reviewedAt=stamp();if(b.status==='REOPENED'){invalidate();next.verificationStatus='CHANGES_REQUESTED';}break;
    }
    case 'edit_group_feature':{
