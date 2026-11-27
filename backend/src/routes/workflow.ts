@@ -35,11 +35,14 @@ function allowed(p:any,u:any){return admin(u)||u.role==='member'&&projectForMemb
 const cycleProject = async(tx:any,id:string,u:any) => {const ref=collection('projects').doc(id);const snap=await tx.get(ref);ensure(snap.exists,'Project not found',404);const p={id:snap.id,...snap.data()} as any;ensure(p.managedWorkflow&&p.teamId===u.teamId&&allowed(p,u),'Forbidden',403);const cycle=await tx.get(collection('monthlyCycles').doc(p.cycleId));ensure(cycle.exists&&cycle.data()?.teamId===u.teamId&&cycle.data()?.status==='active','This cycle is archived',409);return {ref,p,cycle:cycle.data()};};
 workflowRouter.get('/',handle(async(req,res)=>{
  const u=req.user;ensure(admin(u)||u.role==='member','Forbidden',403);
- const cycle=await active(u);
+ const current=await active(u);
+ let cycle=current;
+ if(typeof req.query.cycleId==='string'&&req.query.cycleId!==current?.id){ensure(admin(u),'Only lead/co-lead may view archived cycles',403);const old=await collection('monthlyCycles').doc(req.query.cycleId).get();ensure(old.exists&&old.data()?.teamId===u.teamId,'Cycle not found',404);cycle={id:old.id,...old.data()};}
  const members=(await docs(collection('users').where('teamId','==',u.teamId).where('role','==','member'))).filter((m:any)=>m.active!==false&&m.status!=='inactive').map((m:any)=>({id:m.id,name:m.name}));
  const cycles=admin(u)?(await docs(collection('monthlyCycles').where('teamId','==',u.teamId))).map((c:any)=>({id:c.id,month:c.month,year:c.year,status:c.status,managedWorkflow:!!c.managedWorkflow})):[]; 
  const projects=cycle?(await docs(collection('projects').where('cycleId','==',cycle.id))).filter((p:any)=>p.managedWorkflow&&p.teamId===u.teamId&&allowed(p,u)):[];
- res.json({cycle,members:admin(u)?members:[],cycles,projects:projects.map(clean)});
+ const visibleMembers=admin(u)?members:members.filter((m:any)=>m.id===u.id||projects.some((p:any)=>p.type==='group'&&p.memberIds?.includes(m.id)));
+ res.json({cycle,members:visibleMembers,cycles,projects:projects.map(clean)});
 }));
 workflowRouter.post('/cycles',handle(async(req,res)=>{
  const u=req.user;ensure(u.role==='team_lead','Only the team lead can create cycles',403);
@@ -76,12 +79,16 @@ workflowRouter.post('/groups',handle(async(req,res)=>{
  const p={id:ref.id,teamId:u.teamId,cycleId:cycle.id,type:'group',managedWorkflow:true,name,groupName,description,memberId:u.id,memberIds,features,featuresLocked:true,deadline:due,originalDeadline:due,currentPhase:'DEVELOPMENT',currentStatus:'DEVELOPMENT',verificationStatus:'IN_PROGRESS',progressPercentage:0,submissionValid:false,createdAt:stamp()};
  tx.set(ref,p);audit(tx,u,p,'GROUP_CREATED',{groupName});});res.status(201).json({id:ref.id});
 }));
+workflowRouter.get('/projects/:id/history',handle(async(req,res)=>{
+ const u=req.user;const pdoc=await collection('projects').doc(req.params.id as string).get();const p=pdoc.data();ensure(pdoc.exists&&p?.managedWorkflow&&p.teamId===u.teamId&&allowed(p,u),'Project not found',404);
+ const records=await docs(collection('activities').where('projectId','==',pdoc.id));res.json(records.filter((a:any)=>a.teamId===u.teamId).sort((a:any,b:any)=>String(b.timestamp).localeCompare(String(a.timestamp))).slice(0,100));
+}));
 workflowRouter.post('/projects/:id/action',handle(async(req,res)=>{
  const u=req.user,b=req.body||{},action=b.action;const id=req.params.id as string;
  const result=await db.runTransaction(async tx=>{
   const {ref,p}=await cycleProject(tx,id,u);const lead=admin(u),own=u.role==='member'&&p.memberId===u.id,group=p.type==='group';const next={...p,features:(p.features||[]).map((f:any)=>({...f}))};const fs=next.features;
   const feature=()=>{const f=fs.find((x:any)=>x.id===b.featureId);ensure(f,'Feature not found',404);return f;};
-  const invalidate=()=>{next.submissionValid=false;next.verificationStatus='IN_PROGRESS';};
+  const invalidate=()=>{next.submissionValid=false;next.verificationStatus='IN_PROGRESS';next.completedAt=null;};
   switch(action){
    case 'declare':{
     ensure(!group&&own,'Only the individual owner can declare the project',403);ensure(!p.featuresLocked,'Feature list already finalized',409);
@@ -98,7 +105,7 @@ workflowRouter.post('/projects/:id/action',handle(async(req,res)=>{
     const f=feature();ensure(p.featuresLocked,'Finalize features first',409);ensure(group?u.role==='member'&&f.assignee===u.id:own,'Only the assigned member may update this feature',403);
     ensure(['NOT_STARTED','IN_PROGRESS','IMPLEMENTED'].includes(b.status),'Invalid feature status');
     ensure(!['VERIFIED'].includes(f.status)&&p.verificationStatus!=='VERIFIED','Verified features must be reopened by a leader',409);ensure(!p.submissionValid,'Leader must reopen a submitted project before edits',409);
-    f.status=b.status;f.updatedAt=stamp();invalidate();break;
+    f.status=b.status;f.updatedAt=stamp();invalidate();if(fs.some((x:any)=>x.status==='REOPENED'))next.verificationStatus='CHANGES_REQUESTED';break;
    }
    case 'feature_review':{
     ensure(lead,'Lead/co-lead only',403);const f=feature();ensure(p.featuresLocked,'Project is not finalized',409);ensure(['VERIFIED','REOPENED'].includes(b.status),'Invalid review decision');ensure(b.status!=='VERIFIED'||f.status==='IMPLEMENTED','Only implemented features may be verified',409);
