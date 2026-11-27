@@ -1,4 +1,6 @@
-// import React from 'react';
+import { useEffect, useState } from 'react';
+import { WorkflowLink } from './Workflow';
+import api from '../api';
 import AppShell from '../components/layout/AppShell';
 import { GlassCard, PageHeader } from '../components/ui/Core';
 import { Shield, Clock, HardDrive } from 'lucide-react';
@@ -7,6 +9,9 @@ export default function Settings() {
   const userStr = localStorage.getItem('user');
   const user = userStr ? JSON.parse(userStr) : null;
 
+  const [cycle,setCycle]=useState<any>(null);
+  useEffect(()=>{api.get('/workflow').then(r=>setCycle(r.data.cycle)).catch(()=>{});},[]);
+  const canManage=['team_lead','co_lead'].includes(user?.role);
   return (
     <AppShell>
       <PageHeader title="System Settings" subtitle="Configure cycle and operational parameters" />
@@ -37,14 +42,14 @@ export default function Settings() {
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
               <label className="text-[10px] uppercase tracking-wider text-cinematic-muted block mb-1">Cycle Month</label>
-              <input type="text" disabled value="September 2026" className="w-full text-white bg-cinematic-surface-2/30 px-3 py-2 rounded border border-white/5 opacity-50 cursor-not-allowed" />
+              <input type="text" disabled value={cycle?new Date(cycle.year,cycle.month-1,1).toLocaleDateString("en-US",{month:"long",year:"numeric"}):"No active cycle"} className="w-full text-white bg-cinematic-surface-2/30 px-3 py-2 rounded border border-white/5 opacity-50 cursor-not-allowed" />
             </div>
             <div>
               <label className="text-[10px] uppercase tracking-wider text-cinematic-muted block mb-1">Status</label>
-              <input type="text" disabled value="ACTIVE" className="w-full text-green-400 bg-green-500/10 px-3 py-2 rounded border border-green-500/20 opacity-80 cursor-not-allowed font-bold" />
+              <input type="text" disabled value={cycle?.status?.toUpperCase()||"INACTIVE"} className="w-full text-green-400 bg-green-500/10 px-3 py-2 rounded border border-green-500/20 opacity-80 cursor-not-allowed font-bold" />
             </div>
           </div>
-          <p className="text-xs text-brand-red italic">Cycle configuration is locked while a cycle is active. Contact System Admin to override.</p>
+          {canManage?<div className="space-y-3"><p className="text-xs text-cinematic-muted">Create monthly assignments, manage deadlines and allocate group projects. Previous cycles are retained.</p><WorkflowLink/></div>:<p className="text-xs text-cinematic-muted">Only the team lead can create monthly assignments.</p>}
         </GlassCard>
 
         <GlassCard>
