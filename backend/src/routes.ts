@@ -11,7 +11,18 @@ import { groupRouter } from './routes/group';
 import { reviewsRouter } from './routes/reviews';
 
 
+import { workflowRouter } from './routes/workflow';
 const router = express.Router();
+router.use('/workflow', workflowRouter);
+// Legacy mutation endpoints must not bypass managed feature workflow.
+router.use('/projects/:id', (req,res,next)=>{
+ if(req.method==='GET'||req.method==='HEAD')return next();
+ return authenticate(req as AuthRequest,res,async()=>{
+  try{const doc=await db.collection('vibe_projects').doc(req.params.id).get();const p=doc.data();if(p?.managedWorkflow)return res.status(409).json({error:'Use the feature workflow for this project'});
+  if(p){const u=(req as AuthRequest).user;const cycle=await db.collection('vibe_monthlyCycles').doc(p.cycleId).get();if(cycle.data()?.teamId!==u.teamId||u.role==='member'&&p.memberId!==u.id)return res.status(403).json({error:'Forbidden'});}
+  next();}catch(e){res.status(500).json({error:'Unable to authorize project'});}
+ });
+});
 
 router.use('/members', membersRouter);
 router.use('/projects', projectsRouter);
@@ -54,11 +65,12 @@ router.get('/team-dashboard', authenticate, requireRole(['team_lead', 'co_lead',
 
   if (!cycle) return res.json({ error: 'No active cycle' });
 
-  const members = await getDocs(db.collection('vibe_users').where('teamId', '==', req.user.teamId).where('role', '==', 'member'));
+  const members = (await getDocs(db.collection('vibe_users').where('teamId', '==', req.user.teamId).where('role', '==', 'member'))).filter(m=>m.active!==false&&m.status!=='inactive').map(({passwordHash,password,...m})=>m);
   const projects = await getDocs(db.collection('vibe_projects').where('cycleId', '==', cycle.id));
   
   const individualProjects = projects.filter(p => p.type === 'individual');
-  const groupProject = projects.find(p => p.type === 'group');
+  const groups = projects.filter(p => p.type === 'group');
+  const groupProject = groups[0];
 
   let requirements = [];
   let tests = [];
@@ -82,9 +94,10 @@ router.get('/team-dashboard', authenticate, requireRole(['team_lead', 'co_lead',
     activities = await getDocs(db.collection('vibe_activities'));
   }
 
+  mods=mods.filter(m=>projectIds.includes(m.projectId)); activities=activities.filter(a=>a.cycleId===cycle.id||projectIds.includes(a.projectId)); contribs=contribs.filter(c=>projectIds.includes(c.projectId)); prs=prs.filter(p=>contribs.some(c=>c.id===p.contributionId));
   const memberIds = members.map(m => m.id);
   if (memberIds.length > 0) {
-    attendance = await getDocs(db.collection('vibe_attendanceCache'));
+    attendance = (await getDocs(db.collection('vibe_attendanceCache'))).filter(a=>memberIds.includes(a.memberId));
   }
 
   const dashboardData = await buildTeamDashboard(
@@ -92,6 +105,15 @@ router.get('/team-dashboard', authenticate, requireRole(['team_lead', 'co_lead',
     requirements, tests, mods, activities, contribs, prs, attendance
   );
 
+  if(cycle.managedWorkflow){
+    const managedGroups=groups.filter(g=>g.managedWorkflow);
+    const managedIndividuals=individualProjects.filter(p=>p.managedWorkflow);
+    const average=(rows:any[])=>rows.length?Math.round(rows.reduce((s,p)=>s+(Number(p.progressPercentage)||0),0)/rows.length):0;
+    const gp=average(managedGroups);const ip=average(managedIndividuals);
+    const alerts=[...managedIndividuals,...managedGroups].filter(p=>p.deadline&&new Date(p.deadline)<new Date()&&p.progressPercentage<100).map(p=>({type:'OVERDUE_PROJECT',severity:'HIGH',projectId:p.id,memberId:p.memberId,title:(p.name||p.assignmentName||p.groupName)+' overdue',description:'Submission deadline has passed.'}));
+    const reopened=[...managedIndividuals,...managedGroups].flatMap(p=>(p.features||[]).filter((f:any)=>f.status==='REOPENED').map((f:any)=>({type:'FEATURE_REOPENED',severity:'HIGH',projectId:p.id,memberId:p.memberId,title:f.title,description:f.reviewNote||'Modification required'})));
+    Object.assign(dashboardData,{individualProjectsExpected:managedIndividuals.length,individualProjectsCompleted:managedIndividuals.filter(p=>p.progressPercentage===100).length,individualProjectCompletionRate:ip,groupProjectProgress:managedGroups.length?Math.round(ip*.4+gp*.6):ip,groupProjectsProgress:gp,groupProjectCount:managedGroups.length,attentionItems:[...alerts,...reopened],recentActivity:activities.filter(a=>a.cycleId===cycle.id||projectIds.includes(a.projectId)).sort((a,b)=>String(b.timestamp).localeCompare(String(a.timestamp))).slice(0,200)});
+  }
   res.json({ cycle, dashboard: dashboardData });
 });
 
@@ -99,10 +121,10 @@ router.get('/my-dashboard', authenticate, requireRole(['member']), async (req: A
   const cycleSnap = await db.collection('vibe_monthlyCycles').where('teamId', '==', req.user.teamId).where('status', '==', 'active').get();
   const cycle = cycleSnap.empty ? null : { id: cycleSnap.docs[0].id, ...cycleSnap.docs[0].data() } as any;
 
-  const member = { ...req.user };
+  const { passwordHash, password, ...member } = req.user;
   const projects = await getDocs(db.collection('vibe_projects').where('cycleId', '==', cycle?.id || ''));
   
-  const groupProject = projects.find(p => p.type === 'group');
+  const groupProject = projects.find(p => p.type === 'group' && (!p.managedWorkflow || p.memberIds?.includes(member.id)));
   const individualProjects = projects.filter(p => p.type === 'individual');
 
   const mods = await getDocs(db.collection('vibe_modifications').where('assignedTo', '==', member.id));
