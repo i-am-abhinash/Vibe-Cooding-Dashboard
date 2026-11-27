@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { db } from '../firebase';
 import { authenticate, requireRole, AuthRequest } from '../auth';
 import { calculateMemberGrowth } from '../services/growthEvaluator';
-import { calculateGroupParticipation } from '../services/participationEvaluator';
+import { calculateGroupParticipation, calculateManagedParticipation } from '../services/participationEvaluator';
 import { detectAttentionItems } from '../services/attentionEvaluator';
 
 export const membersRouter = Router();
@@ -14,7 +14,7 @@ async function getDocs(query: any) {
 
 membersRouter.get('/', authenticate, requireRole(['team_lead', 'co_lead', 'admin']), async (req: AuthRequest, res) => {
   try {
-    const members = await getDocs(db.collection('vibe_users').where('teamId', '==', req.user.teamId).where('role', '==', 'member'));
+    const members = (await getDocs(db.collection('vibe_users').where('teamId', '==', req.user.teamId).where('role', '==', 'member'))).map(({passwordHash,password,...m})=>m);
     
     // To provide high-level stats for the members list, fetch cycle data
     const cycleSnap = await db.collection('vibe_monthlyCycles').where('teamId', '==', req.user.teamId).where('status', '==', 'active').get();
@@ -44,7 +44,7 @@ membersRouter.get('/', authenticate, requireRole(['team_lead', 'co_lead', 'admin
       const memAtt = attendance.filter(a => a.memberId === m.id);
       const memMods = modifications.filter(mod => memProjects.some(p => p.id === mod.projectId));
       
-      const part = calculateGroupParticipation(m.id, groupProject?.id || '', activities, contribs, prs);
+      const part = cycleSnap.docs[0]?.data().managedWorkflow ? calculateManagedParticipation(m.id,projects.filter(p=>p.type==='group'&&p.managedWorkflow)) : calculateGroupParticipation(m.id, groupProject?.id || '', activities, contribs, prs);
       const growth = calculateMemberGrowth(m.id, cycleId || '', memProjects, part, memAtt, memMods);
 
       return {
@@ -65,7 +65,8 @@ membersRouter.get('/:id', authenticate, requireRole(['team_lead', 'co_lead', 'ad
   try {
     const doc = await db.collection('vibe_users').doc(req.params.id).get();
     if (!doc.exists) return res.status(404).json({ error: 'User not found' });
-    const member = { id: doc.id, ...doc.data() } as any;
+    const {passwordHash,password,...profile}=doc.data() as any;
+    const member = { id: doc.id, ...profile } as any;
 
     if (member.teamId !== req.user.teamId) return res.status(403).json({ error: 'Forbidden' });
 
@@ -84,7 +85,7 @@ membersRouter.get('/:id', authenticate, requireRole(['team_lead', 'co_lead', 'ad
     const dailyReports = await getDocs(db.collection('vibe_dailyReports').where('memberId', '==', member.id));
     const presentations = await getDocs(db.collection('vibe_presentations').where('memberId', '==', member.id));
 
-    const part = calculateGroupParticipation(member.id, groupProject?.id || '', activities, contribs, prs);
+    const part = cycleSnap.docs[0]?.data().managedWorkflow ? calculateManagedParticipation(member.id,projects.filter(p=>p.type==='group'&&p.managedWorkflow)) : calculateGroupParticipation(member.id, groupProject?.id || '', activities, contribs, prs);
     const growth = calculateMemberGrowth(member.id, cycleId || '', memProjects, part, attendance, modifications);
     const attentionItems = detectAttentionItems(memProjects, groupProject, [], [], modifications, [member], { [member.id]: part });
 
