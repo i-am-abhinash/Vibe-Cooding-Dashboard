@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { randomUUID } from 'node:crypto';
 import { db } from '../firebase';
+import { progress } from '../services/workflowProgress';
 import { authenticate, AuthRequest } from '../auth';
 
 export const workflowRouter = Router();
@@ -23,12 +24,6 @@ function normalized(features:any,group=false,members:string[]=[]){
  ensure(Array.isArray(features)&&features.length>=1&&features.length<=80,'Declare 1–80 features');
  const result=features.map((f:any)=>{const title=text(f.title,'Feature title',160);const description=typeof f.description==='string'?f.description.trim().slice(0,1000):'';const assignee=group?text(f.assignee,'Assigned member',180):'';if(group)ensure(members.includes(assignee),'Assign each feature to a group member');return {id:randomUUID(),title,description,assignee,status:'NOT_STARTED',reviewNote:''};});
  ensure(new Set(result.map((f:any)=>f.title.toLowerCase())).size===result.length,'Feature titles must be unique');return result;
-}
-function progress(p:any){
- const fs=Array.isArray(p.features)?p.features:[];const done=fs.filter((f:any)=>['IMPLEMENTED','VERIFIED'].includes(f.status)).length;
- const all=fs.length>0&&done===fs.length;
- const pct=all&&p.githubUrl&&p.submissionValid===true?100:fs.length?Math.floor(99*done/fs.length):0;
- return {progressPercentage:pct,currentStatus:p.verificationStatus==='VERIFIED'&&pct===100?'COMPLETED':pct===100?'VERIFICATION':fs.some((f:any)=>f.status==='REOPENED')?'MODIFICATION_REQUESTED':p.featuresLocked?'DEVELOPMENT':'IDEA'};
 }
 function projectForMember(p:any,u:any){return p.type==='individual'?p.memberId===u.id:Array.isArray(p.memberIds)&&p.memberIds.includes(u.id);}
 function allowed(p:any,u:any){return admin(u)||u.role==='member'&&projectForMember(p,u);}
