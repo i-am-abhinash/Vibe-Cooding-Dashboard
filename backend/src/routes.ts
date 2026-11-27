@@ -12,6 +12,8 @@ import { reviewsRouter } from './routes/reviews';
 
 
 import { workflowRouter } from './routes/workflow';
+import { calculateManagedParticipation } from './services/participationEvaluator';
+import { calculateMemberGrowth } from './services/growthEvaluator';
 const router = express.Router();
 router.use('/workflow', workflowRouter);
 // Legacy mutation endpoints must not bypass managed feature workflow.
@@ -19,7 +21,7 @@ router.use('/projects/:id', (req,res,next)=>{
  if(req.method==='GET'||req.method==='HEAD')return next();
  return authenticate(req as AuthRequest,res,async()=>{
   try{const doc=await db.collection('vibe_projects').doc(req.params.id).get();const p=doc.data();if(p?.managedWorkflow)return res.status(409).json({error:'Use the feature workflow for this project'});
-  if(p){const u=(req as AuthRequest).user;const cycle=await db.collection('vibe_monthlyCycles').doc(p.cycleId).get();if(cycle.data()?.teamId!==u.teamId||u.role==='member'&&p.memberId!==u.id)return res.status(403).json({error:'Forbidden'});}
+  if(p){const u=(req as AuthRequest).user;const cycle=await db.collection('vibe_monthlyCycles').doc(p.cycleId).get();if(cycle.data()?.teamId!==u.teamId||cycle.data()?.status!=='active'||u.role==='member'&&p.memberId!==u.id)return res.status(403).json({error:'Forbidden'});}
   next();}catch(e){res.status(500).json({error:'Unable to authorize project'});}
  });
 });
@@ -112,7 +114,8 @@ router.get('/team-dashboard', authenticate, requireRole(['team_lead', 'co_lead',
     const gp=average(managedGroups);const ip=average(managedIndividuals);
     const alerts=[...managedIndividuals,...managedGroups].filter(p=>p.deadline&&new Date(p.deadline)<new Date()&&p.progressPercentage<100).map(p=>({type:'OVERDUE_PROJECT',severity:'HIGH',projectId:p.id,memberId:p.memberId,title:(p.name||p.assignmentName||p.groupName)+' overdue',description:'Submission deadline has passed.'}));
     const reopened=[...managedIndividuals,...managedGroups].flatMap(p=>(p.features||[]).filter((f:any)=>f.status==='REOPENED').map((f:any)=>({type:'FEATURE_REOPENED',severity:'HIGH',projectId:p.id,memberId:p.memberId,title:f.title,description:f.reviewNote||'Modification required'})));
-    Object.assign(dashboardData,{individualProjectsExpected:managedIndividuals.length,individualProjectsCompleted:managedIndividuals.filter(p=>p.progressPercentage===100).length,individualProjectCompletionRate:ip,groupProjectProgress:managedGroups.length?Math.round(ip*.4+gp*.6):ip,groupProjectsProgress:gp,groupProjectCount:managedGroups.length,attentionItems:[...alerts,...reopened],recentActivity:activities.filter(a=>a.cycleId===cycle.id||projectIds.includes(a.projectId)).sort((a,b)=>String(b.timestamp).localeCompare(String(a.timestamp))).slice(0,200)});
+    const memberDetails=members.map(m=>{const part=calculateManagedParticipation(m.id,managedGroups);const growth=calculateMemberGrowth(m.id,cycle.id,managedIndividuals.filter(p=>p.memberId===m.id),part,attendance.filter(a=>a.memberId===m.id),mods.filter(mod=>mod.assignedTo===m.id));return {...m,growth,participation:part};});
+    Object.assign(dashboardData,{membersDetails:memberDetails,activeParticipants:memberDetails.filter(m=>m.participation.active).length,inactiveParticipants:memberDetails.filter(m=>!m.participation.active).length,membersOnTrack:memberDetails.filter(m=>['On Track','Completed'].includes(m.growth.status)).length,membersNeedingAttention:memberDetails.filter(m=>m.growth.status==='Needs Attention').length,individualProjectsExpected:managedIndividuals.length,individualProjectsCompleted:managedIndividuals.filter(p=>p.progressPercentage===100).length,individualProjectCompletionRate:ip,groupProjectProgress:managedGroups.length?Math.round(ip*.4+gp*.6):ip,groupProjectsProgress:gp,groupProjectCount:managedGroups.length,attentionItems:[...alerts,...reopened],recentActivity:activities.filter(a=>a.cycleId===cycle.id||projectIds.includes(a.projectId)).sort((a,b)=>String(b.timestamp).localeCompare(String(a.timestamp))).slice(0,200)});
   }
   res.json({ cycle, dashboard: dashboardData });
 });
@@ -137,6 +140,13 @@ router.get('/my-dashboard', authenticate, requireRole(['member']), async (req: A
     member, cycle?.id, individualProjects, groupProject, activities, contribs, prs, attendance, mods
   );
 
+  if(cycle?.managedWorkflow){
+    const groups=projects.filter(p=>p.type==='group'&&p.managedWorkflow&&p.memberIds?.includes(member.id));
+    const part=calculateManagedParticipation(member.id,groups);
+    dashboardData.growth=calculateMemberGrowth(member.id,cycle.id,individualProjects.filter(p=>p.memberId===member.id),part,attendance,mods.filter(m=>projects.some(p=>p.id===m.projectId)));
+    dashboardData.groupProject={...groupProject,participation:part};
+    Object.assign(dashboardData,{groups:groups.map(g=>({id:g.id,name:g.name,groupName:g.groupName,deadline:g.deadline,progressPercentage:g.progressPercentage})),projects:individualProjects.filter(p=>p.memberId===member.id).sort((a,b)=>a.slot-b.slot).map(p=>({...p,evaluation:{percentage:p.progressPercentage,completed:p.verificationStatus==='VERIFIED'}}))});
+  }
   res.json({ cycle, dashboard: dashboardData });
 });
 
