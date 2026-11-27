@@ -8,7 +8,7 @@ export const calculateMemberGrowth = (
   attendance: any[], 
   modifications: any[]
 ) => {
-  const individualProjectsCompleted = projects.filter(p => p.status === INDIVIDUAL_PROJECT_STATES.COMPLETED).length;
+  const individualProjectsCompleted = projects.filter(p => p.managedWorkflow ? p.progressPercentage === 100 : (p.currentStatus || p.status) === INDIVIDUAL_PROJECT_STATES.COMPLETED).length;
   const individualProjectProgress = projects.reduce((acc, p) => acc + (p.progressPercentage || 0), 0) / (projects.length || 1);
   
   const presentDays = attendance.filter(a => a.status === 'present').length;
