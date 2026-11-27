@@ -20,7 +20,14 @@ groupRouter.get('/', authenticate, async (req: AuthRequest, res) => {
     const groupSnap = await db.collection('vibe_projects').where('cycleId', '==', cycleId).where('type', '==', 'group').get();
     if (groupSnap.empty) return res.json(null);
     
-    const project = { id: groupSnap.docs[0].id, ...groupSnap.docs[0].data() } as any;
+    const groups=groupSnap.docs.map(d=>({id:d.id,...d.data()} as any)).filter(p=>!p.managedWorkflow||req.user.role!=='member'||p.memberIds?.includes(req.user.id));
+    if(!groups.length)return res.json(null);
+    if(cycleSnap.docs[0].data().managedWorkflow){
+      const managed=groups.filter(p=>p.managedWorkflow);
+      const progress=managed.length?Math.round(managed.reduce((s,p)=>s+(p.progressPercentage||0),0)/managed.length):0;
+      return res.json({project:managed.length?{id:managed[0].id,name:managed.length===1?managed[0].name:managed.length+' group projects',progressPercentage:progress}:null,groups:managed,contributions:[]});
+    }
+    const project = groups[0];
 
     const requirements = await getDocs(db.collection('vibe_requirements').where('groupProjectId', '==', project.id));
     const tests = await getDocs(db.collection('vibe_functionalityReviews').where('groupProjectId', '==', project.id));
@@ -61,6 +68,9 @@ groupRouter.post('/requirements/:id/verify', authenticate, requireRole(['team_le
   try {
     const { status, comment, projectId } = req.body; 
     const ref = db.collection('vibe_requirements').doc(req.params.id);
+    const doc=await ref.get();const requirement=doc.data();const parent=await db.collection('vibe_projects').doc(requirement?.groupProjectId||'missing').get();const p=parent.data();
+    if(!doc.exists||!p||p.managedWorkflow||p.id&&p.id!==parent.id||projectId!==parent.id)return res.status(409).json({error:'Use the current project workflow'});
+    const cycle=await db.collection('vibe_monthlyCycles').doc(p.cycleId).get();if(cycle.data()?.teamId!==req.user.teamId||cycle.data()?.status!=='active')return res.status(403).json({error:'Forbidden'});
     await ref.update({
       status, 
       reviewer: req.user.id, 
